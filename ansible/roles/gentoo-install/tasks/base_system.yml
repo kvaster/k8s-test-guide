@@ -1,0 +1,32 @@
+# base system install
+---
+- name: List system files
+  find:
+    paths: '{{ root }}'
+    hidden: yes
+    recurse: no
+    file_type: any
+    excludes: 'lost+found'
+  register: system_files
+
+- name: Check if we have some system files
+  fail:
+    msg: 'System root is not empty'
+  when: system_files.matched > 0
+
+- name: Download stage4 tarball
+  get_url:
+    url: '{{ stage4_tarball }}'
+    dest: '{{ root }}/stage4.tar.xz'
+    tmp_dest: '{{ root }}'
+  register: stage4_tarball
+
+- name: Unpack system
+  shell: 'tar -C {{ root }} -xJpf {{ root }}/stage4.tar.xz'
+  args:
+    warn: false
+
+- name: Remove tarball
+  file:
+    state: absent
+    path: '{{ root }}/stage4.tar.xz'

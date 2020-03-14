@@ -1,0 +1,107 @@
+# basic configuration for server to be able to boot
+---
+- name: Basic opnerc conf
+  template:
+    src: rc.conf
+    dest: '{{ root }}/etc/rc.conf'
+
+- name: Hostname
+  copy:
+    content: |
+      hostname="{{ inventory_hostname }}"
+    dest: '{{ root }}/etc/conf.d/hostname'
+
+- name: Timezone
+  file:
+    state: link
+    force: yes
+    src: '/usr/share/zoneinfo/{{ timezone }}'
+    path: '{{ root }}/etc/localtime'
+
+- name: Sysctl config
+  template:
+    src: sysctl.conf
+    dest: '{{ root }}/etc/sysctl.conf'
+
+- name: Net names rules
+  template:
+    src: net-names.rules
+    dest: '{{ root }}/etc/udev/rules.d/86-net-names.rules'
+
+- name: Net config
+  template:
+    src: net.conf
+    dest: '{{ root }}/etc/conf.d/net'
+
+- name: Init scrips for network interfaces
+  file:
+    state: link
+    src: 'net.lo'
+    path: '{{ root }}/etc/init.d/net.{{ item.name }}'
+  loop: '{{ if_list }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: Autorun network interfaces
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; rc-update add net.{{ item.name }} default"'
+  loop: '{{ if_list }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: Autorun default services
+  shell: 'chroot {{ root }} /bin/bash -c "source /etc/profile; rc-update add {{ item.1 }} {{ item.0.level }}"'
+  loop: '{{ default_services|subelements("services") }}'
+  loop_control:
+    label: '{{ item.1 }} -> {{ item.0.level }}'
+  changed_when: false
+
+- name: Ntp config
+  template:
+    src: ntp.conf
+    dest: '{{ root }}/etc/ntp.conf'
+
+- name: Grant sudo to wheel
+  copy:
+    content: |
+      %wheel ALL=(ALL) NOPASSWD: ALL
+    dest: '{{ root }}/etc/sudoers.d/wheel'
+    mode: 0440
+
+- name: Setup root password
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; usermod --password ''{{ root_password }}'' root"'
+  changed_when: false
+
+- name: Create base users
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; useradd -m {{ item.key }}; usermod -aG wheel {{ item.key }}"'
+  loop: '{{ users|dict2items }}'
+  loop_control:
+    label: '{{ item.key }}'
+  changed_when: false
+
+- name: Configure ssh keys for base users
+  copy:
+    dest: '{{ root }}/home/{{ item.key }}/.ssh/authorized_keys'
+    content: |
+      {{ item.value.ssh_key }}
+    mode: 0600
+  loop: '{{ users|dict2items }}'
+  loop_control:
+    label: '{{ item.key }}'
+
+- name: Fix authorized_keys ownership
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; chown {{ item.key }}:{{ item.key }} /home/{{ item.key }}/.ssh/authorized_keys"'
+  loop: '{{ users|dict2items }}'
+  loop_control:
+    label: '{{ item.key }}'
+  changed_when: false
+
+- name: Create fstab
+  copy:
+    content: |
+      UUID="{{ fs_uuid }}" / {{ 'btrfs' if fs_type == 'btrfs' else 'ext4' }} noatime,nodiratime{{ ',space_cache=v2,compress=' + btrfs_compression + ',subvol=root 0 0' if fs_type == 'btrfs' else ' 0 1' }}
+    dest: '{{ root }}/etc/fstab'
+
+- name: Create mdadm.conf
+  shell: 'chroot {{ root }} /bin/bash -c "mdadm --detail --scan > /etc/mdadm.conf"'
+  when: fs_type | regex_search ('^md_')
+  changed_when: false

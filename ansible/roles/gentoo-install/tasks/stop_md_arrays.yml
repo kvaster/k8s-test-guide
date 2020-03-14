@@ -1,0 +1,14 @@
+# stop all md arrays
+---
+- name: Search for md arrays
+  find:
+    path: /dev/md
+    recurse: no
+    file_type: any
+  register: md_arrays
+
+- name: Stop all md arrays
+  shell: 'mdadm --stop {{ item.path }}'
+  loop: '{{ md_arrays.files }}'
+  loop_control:
+    label: '{{ item.path }}'

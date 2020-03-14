@@ -1,0 +1,11 @@
+# meta
+---
+galaxy_info:
+  author: Viktor Kuzmin
+  description: Automatic gentoo install from stage3
+  platforms:
+    - name: Gentoo
+      versions:
+        - all
+  categories:
+dependencies: []

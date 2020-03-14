@@ -1,0 +1,4 @@
+---
+- hosts: '{{ host }}'
+  roles:
+    - gentoo-install

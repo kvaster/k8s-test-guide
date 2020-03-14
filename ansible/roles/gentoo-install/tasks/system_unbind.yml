@@ -1,0 +1,7 @@
+# unbind system mounts
+---
+- name: Unbind to system mounts
+  shell: 'umount -R {{ root }}/{proc,dev,sys}'
+  args:
+    warn: no
+  changed_when: false

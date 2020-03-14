@@ -1,0 +1,10 @@
+# tasks
+---
+- import_tasks: storage_partitions.yml
+- include_tasks: 'storage_{{ fs_type }}.yml'
+- import_tasks: base_system.yml
+- import_tasks: system_bind.yml
+- import_tasks: basic_config.yml
+- import_tasks: kernel.yml
+#- import_tasks: system_unbind.yml
+- import_tasks: reboot.yml

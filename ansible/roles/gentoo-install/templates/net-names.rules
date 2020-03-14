@@ -1,0 +1,4 @@
+# Persistent names for network interfaces
+{% for iface in if_list %}
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="{{ iface.mac }}", NAME="{{ iface.name }}"
+{% endfor %}

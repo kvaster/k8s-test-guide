@@ -1,0 +1,39 @@
+# partition disks
+---
+- name: Force root umount
+  mount:
+    state: absent
+    path: '{{ root }}'
+
+- include_tasks: stop_md_arrays.yml
+  when: force_clean is defined and force_clean
+
+- name: Drop all current partitions
+  shell: 'dd if=/dev/zero of=/dev/{{ item.name }} bs=1M count=8'
+  loop: '{{ disks }}'
+  when: force_clean is defined and force_clean
+
+- name: Create BIOS boot partitions
+  parted:
+    device: '/dev/{{ item.name }}'
+    label: gpt
+    state: present
+    number: 1
+    part_end: 32MB
+    flags: [ bios_grub ]
+  loop: '{{ disks }}'
+
+- name: Create system partitions
+  parted:
+    device: '/dev/{{ item.name }}'
+    label: gpt
+    state: present
+    number: 2
+    part_start: 32MB
+    flags: '{{ ["raid"] if fs_type | regex_search("^md_") else ["raid off"] }}'
+  loop: '{{ disks }}'
+
+- name: Force clean filesystem
+  shell: 'dd if=/dev/zero of={{ item | partition_dev("2") }} bs=1M count=8; dd if=/dev/zero of={{ item | partition_dev("2") }} bs=512 seek=$(( $(blockdev --getsz {{ item | partition_dev("2") }}) - 1024 )) count=1024'
+  loop: '{{ disks }}'
+  when: force_clean is defined and force_clean

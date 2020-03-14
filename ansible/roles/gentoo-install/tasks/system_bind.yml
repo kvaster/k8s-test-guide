@@ -1,0 +1,7 @@
+# bind system mounts
+---
+- name: Bind to system mounts
+  shell: 'mount -t proc none {{ root }}/proc; mount --rbind /dev {{ root }}/dev; mount --rbind /sys {{ root }}/sys'
+  args:
+    warn: no
+  changed_when: false

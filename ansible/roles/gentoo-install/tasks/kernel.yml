@@ -1,0 +1,22 @@
+# kernel and grub install
+---
+- name: Grub configuration
+  copy:
+    content: |
+      GRUB_DISTRIBUTOR="Gentoo"
+      {% if fs_type == 'btrfs' %}
+      GRUB_CMDLINE_LINUX="dobtrfs"
+      {% endif %}
+      {% if fs_type | regex_search ('^md_') %}
+      GRUB_CMDLINE_LINUX="domdadm"
+      {% endif %}
+    dest: '{{ root }}/etc/default/grub'
+
+- name: Install grub
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; grub-install /dev/{{ item.name }}"'
+  loop: '{{ disks }}'
+  changed_when: false
+
+- name: Create grub config
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; grub-mkconfig -o /boot/grub/grub.cfg"'
+  changed_when: false

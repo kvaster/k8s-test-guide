@@ -1,0 +1,89 @@
+# ext4+mdadm storage
+---
+- name: Load filesystem facts
+  shell: 'blkid {{ item | partition_dev("2") }} -o export | sed -nr "s/(.+)=(.+)/\1: \2/gp"'
+  register: disk_check
+  loop: '{{ disks }}'
+  changed_when: false
+
+- name: Checking if we have any filesystem already
+  set_fact:
+    fs_avail: true
+  when: disk_data.TYPE is defined
+  vars:
+    disk_data: '{{ item.stdout | from_yaml }}'
+  loop: '{{ disk_check.results }}'
+  loop_control:
+    label: '{{ item.item.name }}'
+
+- name: Create md raid 0 array
+  shell: 'mdadm -C /dev/md/gentoo -N gentoo --homehost=any -l 0 -n {{ disks|length }} {{ disks | map("partition_dev", "2") | join(" ") }}'
+  when: fs_avail is not defined
+
+- name: Reload filesystem facts
+  shell: 'blkid {{ item | partition_dev("2") }} -o export | sed -nr "s/(.+)=(.+)/\1: \2/gp"'
+  register: disk_check
+  loop: '{{ disks }}'
+  changed_when: false
+
+- name: Check filesystem details
+  fail:
+    msg: "Filesystem is not consistent: {{ disk_data.TYPE }}"
+  when: disk_data.TYPE != 'linux_raid_member'
+  vars:
+    disk_data: '{{ item.stdout | from_yaml }}'s
+  loop: '{{ disk_check.results }}'
+  loop_control:
+    label: '{{ item.item.name }}'
+
+- name: Load md filesystem facts
+  shell: 'blkid /dev/md/gentoo -o export | sed -nr "s/(.+)=(.+)/\1: \2/gp"'
+  register: disk_check
+  changed_when: false
+
+- name: Checking if we have any md filesystem defined
+  set_fact:
+    md_fs_avail: true
+  when: disk_data.TYPE is defined
+  vars:
+    disk_data: '{{ disk_check.stdout | from_yaml }}'
+
+- name: Create ext4 filesystem
+  shell: 'mkfs.ext4 -L gentoo /dev/md/gentoo'
+  when: (md_fs_avail is not defined) or (force_clean is defined and force_clean)
+
+- name: Reload md filesystem facts
+  shell: 'blkid /dev/md/gentoo -o export | sed -nr "s/(.+)=(.+)/\1: \2/gp"'
+  register: disk_check
+  changed_when: false
+
+- name: Check md filesystem details
+  fail:
+    msg: "Filesystem is not consistent: {{ disk_data.TYPE }}"
+  when: disk_data.TYPE != 'ext4' or disk_data.LABEL != 'gentoo'
+  vars:
+    disk_data: '{{ disk_check.stdout | from_yaml }}'
+
+- name: Get filesystem UUID
+  set_fact:
+    fs_uuid: '{{ disk_data.UUID }}'
+  vars:
+    disk_data: '{{ disk_check.stdout | from_yaml }}'
+
+- name: Make sure filsystem is not mounted
+  mount:
+    state: absent
+    path: '{{ root }}'
+
+- name: Create mount point
+  file:
+    path: '{{ root }}'
+    state: directory
+
+- name: Ext4 mount
+  mount:
+    state: mounted
+    src: 'UUID={{ fs_uuid }}'
+    path: '{{ root }}'
+    fstype: ext4
+    opts: noatime,nodiratime

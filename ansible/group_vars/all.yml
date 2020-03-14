@@ -1,0 +1,20 @@
+ansible_become: true
+ansible_become_method: sudo
+ansible_become_user: root
+ansible_python_interpreter: /usr/bin/python3
+ansible_ssh_common_args: -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+
+# password is generated this way: openssl passwd -1 '{password}'
+root_password: "$1$wufpo0JW$RFRCnL9vrpxgRgCOsSN1N/"
+
+timezone: Europe/Minsk
+
+repo_domain: mydomain.com
+
+users:
+  kva:
+    ssh_key: 'ssh-ed25519 SOMEKEY kva@kva-note'
+
+add_users:
+  kva:
+    groups: wheel

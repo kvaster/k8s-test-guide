@@ -1,0 +1,83 @@
+# btrfs storage task
+---
+- name: Load filesystem facts
+  shell: 'blkid {{ item | partition_dev("2") }} -o export | sed -nr "s/(.+)=(.+)/\1: \2/gp"'
+  register:  disk_check
+  loop: '{{ disks }}'
+  changed_when: false
+
+- name: Checking if we have any filesystem already
+  set_fact:
+    fs_avail: true
+  when: disk_data.TYPE is defined
+  vars:
+    disk_data: '{{ item.stdout | from_yaml }}'
+  loop: '{{ disk_check.results }}'
+  loop_control:
+    label: '{{ item.item.name }}'
+
+- name: Create BTRFS filesystem
+  shell: 'mkfs.btrfs -L gentoo -d {{ btrfs_profile }} -m {{ btrfs_profile }} {{ disks | map("partition_dev", "2") | join(" ") }}'
+  when: fs_avail is not defined
+
+- name: Reload filesystem facts
+  shell: 'blkid {{ item | partition_dev("2") }} -o export | sed -nr "s/(.+)=(.+)/\1: \2/gp"'
+  register:  disk_check
+  loop: '{{ disks }}'
+  changed_when: false
+
+- name: Check filesystem details
+  fail:
+    msg: "Filesystem is not consistent: {{ disk_data.TYPE }}"
+  when: disk_data.TYPE != 'btrfs' or disk_data.LABEL != 'gentoo'
+  vars:
+    disk_data: '{{ item.stdout | from_yaml }}'
+  loop: '{{ disk_check.results }}'
+  loop_control:
+    label: '{{ item.item.name }}'
+
+- name: Get filesystem UUID
+  set_fact:
+    fs_uuid: '{{ disk_data.UUID }}'
+  vars:
+    disk_data: '{{ disk_check.results[0].stdout | from_yaml }}'
+
+- name: Make sure filsystem is not mounted
+  mount:
+    state: absent
+    path: '{{ root }}'
+
+- name: Create mount point
+  file:
+    path: '{{ root }}'
+    state: directory
+
+- name: Initial BTRFS mount
+  mount:
+    state: mounted
+    src: 'UUID={{ fs_uuid }}'
+    path: '{{ root }}'
+    fstype: btrfs
+    opts: noatime,nodiratime,space_cache=v2,compress={{ btrfs_compression }},clear_cache
+
+- name: Checking subvolumes
+  stat:
+    path: '{{ root }}/root'
+  register: root_subvol
+
+- name: Create root subvolume
+  shell: 'btrfs subvolume create {{ root }}/root'
+  when: root_subvol.stat.isdir is undefined or not root_subvol.stat.isdir
+
+- name: Umount initial
+  mount:
+    state: absent
+    path: '{{ root }}'
+
+- name: Root subvol BTRFS mount
+  mount:
+    state: mounted
+    src: 'UUID={{ fs_uuid }}'
+    path: '{{ root }}'
+    fstype: btrfs
+    opts: noatime,nodiratime,space_cache=v2,compress={{ btrfs_compression }},subvol=root
