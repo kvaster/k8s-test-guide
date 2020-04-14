@@ -418,7 +418,6 @@ command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEAD
 
 kubeadm, который лежит в нашем репозитарии, собирается с несколькими патчами, которых нет в upstream и некоторых из них пока не будет:
 
-* Патч для правильного определения активности сервисов на openrc - нужен для того, чтобы kubeadm по ошибке не задавал параметров resolv.conf для kubectl (на этот патч сделаю скоро PR разработчикам)
 * Патч порядка старта kubectl во время bootstrap. Systemd по дефолту будет рестартовать сервис пока он не стартанёт, а в upstream версии kubectl стартуется до того, как на диск будет записан весь конфиг (на этот патч скоро также сделаю PR)
 * Специальный патч, который убирает фазу проверки kube-proxy во время upgrade'а кластера. Это UGLY hack. Этот патч будет убран тогда, когда разработчики починят это у себя правильно:
 https://github.com/kubernetes/kubeadm/issues/1756
@@ -444,8 +443,7 @@ https://github.com/kubernetes/kubeadm/issues/1318
 
 Дополнительные и изменённые пакеты (overlay) находятся в репозитарии: https://github.com/kvaster/kvaster-gentoo
 
-В хост систему мы ставим только kubeadm, kubectl и kubelet. В оверлее сейчас лежит модицифированный kubelet - там поменяны default настройки запуска (`conf.d/kubelet`). А также kubeadm - на него наложен патч:
-патч, который насильно (что в общем случае не правильно) отключает добавление kube-proxy при upgrade'е control plane'а.
+В хост систему мы ставим только kubeadm, kubectl и kubelet. В оверлее сейчас лежит модицифированный kubelet - там поменяны default настройки запуска (`conf.d/kubelet`). А также kubeadm - на него наложен патчи, которые описывались ранее.
 
 Патч для отключения kube-proxy обновления нужен будет до тех пор, пока не будут пофикшены следующие issues:
 [1756](https://github.com/kubernetes/kubeadm/issues/1756), [1318](https://github.com/kubernetes/kubeadm/issues/1318).

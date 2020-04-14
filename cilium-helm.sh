@@ -42,6 +42,7 @@ IPVLAN_L3S="
 --set global.masquerade=true
 --set global.autoDirectNodeRoutes=true
 --set global.nodePort.enabled=true
+--set global.nodePort.mode=dsr
 "
 
 # host reachable services
@@ -64,13 +65,21 @@ NO_KUBEPROXY="
 --set global.kubeProxyReplacement=strict
 "
 
+DSR="
+--set global.tunnel=disabled
+--set global.autoDirectNodeRoutes=true
+--set global.nodePort.mode=dsr
+"
+
 OPTS="--namespace kube-system --set global.tag=v${CILIUM_VERSION}"
 #OPTS="${OPTS} ${MANAGED_ETC}"
 #OPTS="${OPTS} ${IPVLAN}"
 #OPTS="${OPTS} ${IPVLAN_L3_BPF}"
 #OPTS="${OPTS} ${IPVLAN_L3S}"
+OPTS="${OPTS} ${DSR}"
 OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${NODE_PORT}"
 OPTS="${OPTS} ${NO_KUBEPROXY}"
 
+echo helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS}
 helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS} > cilium.yaml
