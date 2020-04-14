@@ -100,12 +100,15 @@ IP для доступа во вне со второго интерфейса б
 * ``net-misc/socat``
 * ``sys-apps/ethtool``
 * ``sys-apps/dbus`` - нужен только для того, чтобы сгенерировался файл ``/etc/machine-id``
-* ``sys-cluster/kubeadm``
-* ``sys-cluster/kubectl``
-* ``sys-cluster/kubelet``
+* ``sys-cluster/kubernetes``
 * ``app-admin/helm`` - для генерации конфигурации cilium
 
-Установить это всё можно командой:
+Для kubernetes пакета нам надо выключить все не нужные нам компоненты - нужны только kubeadm, kubelet и kubectl.
+Добавляем в файл `/etc/portage/package.use/common.use`:
+
+`sys-cluster/kubernetes -kube-apiserver -kube-controller-manager -kube-proxy -kube-scheduler`
+
+Установить же это всё можно командой:
 
 ```
 emerge -av app-emulation/containerd \
@@ -114,9 +117,7 @@ emerge -av app-emulation/containerd \
     net-firewall/ebtables net-misc/socat \
     sys-apps/ethtool \
     sys-apps/dbus \
-    sys-cluster/kubeadm \
-    sys-cluster/kubectl \
-    sys-cluster/kubelet \
+    sys-cluster/kubernetes \
     app-admin/helm
 ```
 
@@ -125,6 +126,16 @@ emerge -av app-emulation/containerd \
 и ругаться на отсутствие модуля, поэтом просто добавим его в автозагрузку в ``/etc/conf.d/modules``:
 
 ``modules="br_netfilter"``
+
+Вместе с kubernetes будут поставлены также инструменты для контейнера: `cri-tools`, но в mainline portage не устанавливается
+стандартный конфиг для них, поэтому надо вписать в `/etc/crictl.yaml`:
+
+```
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+timeout: 10
+debug: false
+```
 
 Для работы kubernets нам также понадобится изменить настройки параметров ядра в ``/etc/sysctl.conf``:
 
@@ -317,8 +328,8 @@ Token сам по себе expire'ится через 24 часа и может 
 Без сети для pod'ов и сервисов в нашем кластере мы ничего не сможем запустить.
 Мы будем использовать cilium в качестве CNI плагина. Также работу kube-proxy мы переложим на него.
 Для генерации cilium.yaml файла, который можно будет применить на нашем кластере будем использовать ``helm``.
-Полный скрипт, который скачивает исходники helm чарта для cilium и делает нужный нам конфиг, находятся вот тут:
-[cilium-helm.sh](cilium-helm.sh).
+Скрипт, который делает нужный нам конфиг, находится вот тут: [cilium-helm.sh](cilium-helm.sh).
+Для того, чтобы скрипт заработал, сначала надо добавить helm репозитарий в систему: `helm repo add cilium https://helm.cilium.io/`.
 
 Прошу обратить внимание, что в тех режимах, в которых мы его запускаем, cilium должен знать конкретный endpoint api server'а.
 И этот endpoint - наш virtual ip.
@@ -433,9 +444,8 @@ https://github.com/kubernetes/kubeadm/issues/1318
 
 Дополнительные и изменённые пакеты (overlay) находятся в репозитарии: https://github.com/kvaster/kvaster-gentoo
 
-В хост систему мы ставим только kubeadm, kubectl и kubelet. В оверлее сейчас лежит только модицифированный kubelet - там поменяны только default настройки запуска (`conf.d/kubelet`). А также kubeadm - на него наложено два патча:
-патч для того, чтобы kubelet стартовал только после того, как все настройки будут записаны на диск, а также патч,
-который насильно (что в общем случае не правильно) отключает добавление kube-proxy при upgrade'е control plane'а.
+В хост систему мы ставим только kubeadm, kubectl и kubelet. В оверлее сейчас лежит модицифированный kubelet - там поменяны default настройки запуска (`conf.d/kubelet`). А также kubeadm - на него наложен патч:
+патч, который насильно (что в общем случае не правильно) отключает добавление kube-proxy при upgrade'е control plane'а.
 
 Патч для отключения kube-proxy обновления нужен будет до тех пор, пока не будут пофикшены следующие issues:
 [1756](https://github.com/kubernetes/kubeadm/issues/1756), [1318](https://github.com/kubernetes/kubeadm/issues/1318).
