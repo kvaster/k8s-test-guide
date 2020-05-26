@@ -1,0 +1,14 @@
+<network>
+  <name>test2</name>
+  <uuid>fd6b7248-3963-48d3-a4ee-53711dd8613f</uuid>
+  <forward mode="nat">
+  </forward>
+  <ip address="10.118.1.0" netmask="255.255.255.0">
+    <tftp root="/home/kva/vm/tftp"/>
+    <dhcp>
+      <range start="10.118.1.129" end="10.118.1.254"/>
+      <host mac="52:54:00:1b:bb:5f" ip="10.118.1.2"/>
+      <bootp file="pxelinux.0"/>
+    </dhcp>
+  </ip>
+</network>

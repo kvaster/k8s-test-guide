@@ -1,0 +1,9 @@
+---
+- name: vm base
+  import_playbook: vm-create.yml
+
+- name: vm start
+  import_playbook: vm-start.yml
+
+- name: vm install
+  import_playbook: vm-install.yml

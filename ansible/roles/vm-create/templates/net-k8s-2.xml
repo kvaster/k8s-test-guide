@@ -1,0 +1,6 @@
+<network>
+  <name>k8s-2</name>
+  <uuid>e5574e51-b5f4-4338-a0b1-7fa6e39c93d6</uuid>
+  <forward mode="nat"/>
+  <ip address="10.118.11.1" netmask="255.255.255.0"/>
+</network>

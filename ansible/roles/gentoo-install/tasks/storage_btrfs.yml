@@ -58,7 +58,7 @@
     src: 'UUID={{ fs_uuid }}'
     path: '{{ root }}'
     fstype: btrfs
-    opts: noatime,nodiratime,space_cache=v2,compress={{ btrfs_compression }},clear_cache
+    opts: noatime,nodiratime,space_cache=v2,discard=async,compress={{ btrfs_compression }},clear_cache
 
 - name: Checking subvolumes
   stat:
@@ -80,4 +80,4 @@
     src: 'UUID={{ fs_uuid }}'
     path: '{{ root }}'
     fstype: btrfs
-    opts: noatime,nodiratime,space_cache=v2,compress={{ btrfs_compression }},subvol=root
+    opts: noatime,nodiratime,space_cache=v2,discard=async,compress={{ btrfs_compression }},subvol=root

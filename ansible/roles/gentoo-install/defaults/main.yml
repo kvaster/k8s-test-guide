@@ -6,7 +6,7 @@ root: /mnt/gentoo
 
 btrfs_compression: zstd
 
-stage4_tarball: 'https://gentoo.{{ repo_domain }}/release/{{ arch }}/stage4-{{ arch }}-latest.tar.xz'
+stage4_tarball: 'https://gentoo.{{ repo_domain }}/release/{{ arch }}/stage4-{{ arch }}-latest.tar.zst'
 
 default_services:
   - level: sysinit

@@ -1,0 +1,79 @@
+# tasks
+---
+- name: create vm tftp dir
+  file:
+    path: "{{ vm_root_abs }}/tftp"
+    state: directory
+
+- name: create vm dist dir
+  file:
+    path: "{{ vm_root_abs }}/dist"
+    state: directory
+
+- name: download tftp image
+  get_url:
+    url: "https://gentoo.{{ repo_domain }}/files/gentoo-pxe.zip"
+    dest: "{{ vm_root_abs }}/dist/gentoo-pxe.zip"
+    checksum: "sha512:https://gentoo.{{ repo_domain }}/files/gentoo-pxe.zip.sha512"
+    force: false
+
+- name: unpack tftp image
+  unarchive:
+    src: "{{ vm_root_abs }}/dist/gentoo-pxe.zip"
+    dest: "{{ vm_root_abs }}/tftp"
+
+- name: create pxe config dir
+  file:
+    path: "{{ vm_root_abs }}/tftp/pxelinux.cfg"
+    state: directory
+
+- name: create pxe config
+  copy:
+    dest: "{{ vm_root_abs }}/tftp/pxelinux.cfg/default"
+    content: |
+      DEFAULT gentoo
+      LABEL gentoo
+          kernel boot/gentoo root=/dev/ram0 init=/linuxrc loop=/image.squashfs looptype=squashfs cdroot=1 real_root=/ dosshd nokeymap sshkey={{ lookup('file', ssh_key_location) | b64encode }}
+          append initrd=boot/gentoo.igz
+      MENU LABEL gentoo
+
+- name: create net
+  virt_net:
+    command: define
+    name: "{{ item }}"
+    xml: "{{ lookup('template', 'templates/net-' + item + '.xml') }}"
+  loop:
+    - k8s-1
+    - k8s-2
+
+- name: start net
+  virt_net:
+    name: "{{ item }}"
+    state: active
+  loop:
+    - k8s-1
+    - k8s-2
+
+- name: autostart net
+  virt_net:
+    name: "{{ item }}"
+    autostart: yes
+  loop:
+    - k8s-1
+    - k8s-2
+
+- name: create imgs dir
+  file:
+    path: "{{ vm_root_abs }}/images"
+    state: directory
+
+- name: create imgs
+  shell: "qemu-img create -f qcow2 {{ vm_root_abs }}/images/{{ item }}.qcow2 10G"
+  with_items: "{{ groups['k8s'] }}"
+
+- name: create vms
+  virt:
+    command: define
+    autostart: yes
+    xml: "{{ lookup('template', 'templates/vm-k8s.xml') }}"
+  with_items: "{{ groups['k8s'] }}"

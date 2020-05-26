@@ -1,6 +1,6 @@
 ansible_host: 10.118.10.20
 disks:
-- name: vda
+- name: sda
 if_list:
   - name: wan0
     ipv4:

@@ -10,10 +10,13 @@ root_password: "$1$wufpo0JW$RFRCnL9vrpxgRgCOsSN1N/"
 timezone: Europe/Minsk
 
 repo_domain: mydomain.com
+vm_root: ../tmp
+vm_root_abs: "{{ vm_root | realpath }}"
+ssh_key_location: '~/.ssh/id_ed25519.pub'
 
 users:
   kva:
-    ssh_key: 'ssh-ed25519 SOMEKEY kva@kva-note'
+    ssh_key: "{{ lookup('file', ssh_key_location) }}"
 
 add_users:
   kva:

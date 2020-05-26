@@ -17,12 +17,12 @@
 - name: Download stage4 tarball
   get_url:
     url: '{{ stage4_tarball }}'
-    dest: '{{ root }}/stage4.tar.xz'
+    dest: '{{ root }}/stage4.tar.zst'
     tmp_dest: '{{ root }}'
   register: stage4_tarball
 
 - name: Unpack system
-  shell: 'tar -C {{ root }} -xJpf {{ root }}/stage4.tar.xz'
+  shell: 'cat {{ root }}/stage4.tar.zst | zstd -d | tar -C {{ root }} -xp'
   args:
     warn: false
 
