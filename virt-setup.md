@@ -1,5 +1,32 @@
 # Автоматическая настройка виртуальных машин
 
+## Ansible
+
+Далее будут описаны детали того, что можно будет сделать с ansible скриптами. Файлы rescue системы для запуска с pxe создавались отдельно.
+
+Для установки в libvirt на gentoo нам понадобятся следующие настройки в `package.use`:
+
+```
+app-emulation/libvirt virt-network
+net-dns/dnsmasq script tftp
+```
+
+Создание машин для libvirt:
+
+```
+cd ansible
+ansible-playbook -e repo_name=myhost.com playbooks/vm.yml
+```
+
+Для virtualbox:
+
+```
+cd ansible
+ansible-playbook -e repo_name=myhost.com -e vm_type=vbox playbooks/vm.yml
+```
+
+Для удаления машин используем `vm-destroy.yml` playbook.
+
 ## Создание и запуск машин в rescue режим
 
 Для того, чтобы мы могли настроить виртуальные машины, на них должна быть запущена какая-нибудь rescue система
@@ -86,7 +113,7 @@ https://lathama.net/PXE_boot_with_Libvirt - в качестве boot'а буде
 cp /usr/lib/syslinux/{pxelinux.0,ldlinux.c32} tftp/
 ```
 
-Создадим конфигурацию запуска в `tftp/pxelinux.cfg`:
+Создадим конфигурацию запуска в `tftp/pxelinux.cfg/default`:
 
 ```
 DEFAULT gentoo
@@ -96,6 +123,14 @@ LABEL gentoo
     append initrd=boot/gentoo.igz
 MENU LABEL gentoo
 ```
+
+Для virtualbox надо создавать конфигурацию отдельно для каждого хоста (так как у него нету в dhcp привязки ip к mac адресу).
+Конфигурация будет в `tftp/pxelinux.cfg/01-XX-XX-XX-XX-XX-XX`, где XX - это mac адрес. Также в строку `kernel` надо добавить
+параметры настройки сетевых карт после запуска pxe образа и отключить dhcp после запуска:
+
+`nodhcp net.conf=if=52:54:00:12:34:56,ip=10.118.10.20/24,if=52:54:00:12:33:56,dhcp dns=1.1.1.1`
+
+И последнее: для virtualbox для каждого хоста надо создать symlink'и на `pxelinux.0` вида `tftp/vmname.pxe`.
 
 Ядро скопируем из распакованного ранее iso: `cp boot/gentoo tftp/boot/gentoo`.
 Предварительно надо создать сам каталог - `mkdir tftp/boot`.
@@ -153,4 +188,6 @@ find . -print | cpio -o -H newc | gzip -9 -c - > ../gentoo.igz
 ```
 
 ### virtualbox
-TODO
+
+Конфигурирование адресов было описано в секции про PXE.
+

@@ -114,7 +114,8 @@ IP для доступа во вне со второго интерфейса б
 emerge -av app-emulation/containerd \
     app-emulation/cri-tools \
     net-firewall/conntrack-tools \
-    net-firewall/ebtables net-misc/socat \
+    net-firewall/ebtables \
+    net-misc/socat \
     sys-apps/ethtool \
     sys-apps/dbus \
     sys-cluster/kubernetes \
