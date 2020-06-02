@@ -1,18 +1,10 @@
-ansible_host: 10.118.10.21
+mac_short: 57
+ip_short: 21
+
+ansible_host: "10.118.10.{{ ip_short }}"
+
 disks:
 - name: sda
-if_list:
-  - name: wan0
-    ipv4:
-      addr: 10.118.10.21
-      mask: 24
-      gw: 10.118.10.1
-    mac: '52:54:00:12:34:57'
-  - name: wan1
-    ipv4:
-      addr: 10.118.12.21
-      mask: 24
-    mac: '52:54:00:12:35:57'
 fs_type: btrfs
 btrfs_profile: single
 arch: generic

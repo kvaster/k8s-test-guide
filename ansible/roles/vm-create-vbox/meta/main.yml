@@ -1,0 +1,11 @@
+# meta
+---
+galaxy_info:
+  author: Viktor Kuzmin
+  description: Automatic VM creation for test k8s cluster
+  platforms:
+    - name: Gentoo
+      versions:
+        - all
+  categories:
+dependencies: []

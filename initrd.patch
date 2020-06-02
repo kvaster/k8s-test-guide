@@ -1,0 +1,86 @@
+diff --git a/etc/initrd.scripts b/etc/initrd.scripts
+index 514a8bc..a73db85 100644
+--- a/etc/initrd.scripts
++++ b/etc/initrd.scripts
+@@ -2026,6 +2026,9 @@ start_network() {
+ 				fi
+ 				unset tmp_dhcp_timeout
+ 			;;
++			net.conf=*)
++				NET_CONF=${x#*=}
++			;;
+ 		esac
+ 	done
+ 
+@@ -2091,7 +2094,32 @@ start_network() {
+ 		good_msg "Interface detected as ${GK_NET_IFACE}"
+ 	fi
+ 
+-	if [ -z "${IP}" -o "${IP}" = 'dhcp' ]
++	if [ -n "${NET_CONF}" ]
++	then
++		good_msg "Configuring network via net.conf"
++
++		local net_if=
++		for x in ${NET_CONF//,/ }
++		do
++			case "$x" in
++				if=*)
++					net_if=$(iface_name "${x#*=}")
++				;;
++				ip=*)
++					run ip link set ${net_if} up
++					run ip addr add ${x#*=} dev ${net_if}
++				;;
++				dhcp)
++					run udhcpc -i ${net_if}
++				;;
++				gw=*)
++					run ip route add default via ${x#*=}
++				;;
++			esac
++		done
++		# make sure we will keep all interfaces configured
++		GK_NET_IFACE="ethunavail"
++	elif [ -z "${IP}" -o "${IP}" = 'dhcp' ]
+ 	then
+ 		if is_interface_up
+ 		then
+diff --git a/init b/init
+index 964a932..7cd2cd0 100755
+--- a/init
++++ b/init
+@@ -433,6 +433,9 @@ do
+ 		verify)
+ 			VERIFY=1
+ 		;;
++		sshkey\=*)
++			SSH_KEY="${x#*=}"
++		;;
+ 	esac
+ done
+ 
+@@ -1344,6 +1347,23 @@ rundebugshell "before entering switch_root"
+ 
+ preserve_log
+ 
++if [ -n "${SSH_KEY}" ]
++then
++	mkdir -p ${CHROOT}/root/.ssh
++	echo "${SSH_KEY}" | base64 -d > ${CHROOT}/root/.ssh/authorized_keys
++	chmod 0700 ${CHROOT}/root/.ssh
++	chmod 0600 ${CHROOT}/root/.ssh/authorized_keys
++fi
++
++for x in ${CMDLINE}
++do
++	case "${x}" in
++		dns=*)
++			run echo "nameserver ${x#*=}" >> ${CHROOT}/etc/resolv.conf
++		;;
++	esac
++done
++
+ # init_opts is set in the environment by the kernel when it parses the command line
+ init=${REAL_INIT:-/sbin/init}
+ if ! mountpoint "${CHROOT}" 1>/dev/null 2>&1

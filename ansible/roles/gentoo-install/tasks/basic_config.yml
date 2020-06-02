@@ -72,27 +72,27 @@
   changed_when: false
 
 - name: Create base users
-  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; useradd -m {{ item.key }}; usermod -aG wheel {{ item.key }}"'
-  loop: '{{ users|dict2items }}'
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; useradd -m {{ item.name }}; usermod -aG wheel {{ item.name }}"'
+  loop: '{{ users }}'
   loop_control:
-    label: '{{ item.key }}'
+    label: '{{ item.name }}'
   changed_when: false
 
 - name: Configure ssh keys for base users
   copy:
-    dest: '{{ root }}/home/{{ item.key }}/.ssh/authorized_keys'
+    dest: '{{ root }}/home/{{ item.name }}/.ssh/authorized_keys'
     content: |
-      {{ item.value.ssh_key }}
+      {{ item.ssh_key }}
     mode: 0600
-  loop: '{{ users|dict2items }}'
+  loop: '{{ users }}'
   loop_control:
-    label: '{{ item.key }}'
+    label: '{{ item.name }}'
 
 - name: Fix authorized_keys ownership
-  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; chown {{ item.key }}:{{ item.key }} /home/{{ item.key }}/.ssh/authorized_keys"'
-  loop: '{{ users|dict2items }}'
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; chown {{ item.name }}:{{ item.name }} /home/{{ item.name }}/.ssh/authorized_keys"'
+  loop: '{{ users }}'
   loop_control:
-    label: '{{ item.key }}'
+    label: '{{ item.name }}'
   changed_when: false
 
 - name: Create fstab

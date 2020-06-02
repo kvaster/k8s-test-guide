@@ -14,10 +14,43 @@ vm_root: ../tmp
 vm_root_abs: "{{ vm_root | realpath }}"
 ssh_key_location: '~/.ssh/id_ed25519.pub'
 
+# libvirt or vbox
+vm_type: libvirt
+
+mem_mb: 2048
+
 users:
-  kva:
+  - name: "{{ ansible_local_user }}"
     ssh_key: "{{ lookup('file', ssh_key_location) }}"
 
-add_users:
-  kva:
-    groups: wheel
+if_list_libvirt:
+  - name: wan0
+    ipv4:
+      addr: "10.118.10.{{ ip_short }}"
+      mask: 24
+      gw: 10.118.10.1
+    mac: '52:54:00:12:34:{{ mac_short }}'
+  - name: wan1
+    ipv4:
+      addr: "10.118.12.{{ ip_short }}"
+      mask: 24
+    mac: '52:54:00:12:35:{{ mac_short }}'
+
+if_list_vbox:
+  - name: wan0
+    ipv4:
+      addr: "10.118.10.{{ ip_short }}"
+      mask: 24
+      gw: 10.118.10.1
+    mac: '52:54:00:12:34:{{ mac_short }}'
+  - name: wan1
+    ipv4:
+      addr: "10.118.12.{{ ip_short }}"
+      mask: 24
+    mac: '52:54:00:12:35:{{ mac_short }}'
+  - name: wan2
+    ipv4:
+      dhcp: true
+    mac: '52:54:00:12:33:{{ mac_short }}'
+
+if_list: "{{ if_list_vbox if vm_type == 'vbox' else if_list_libvirt }}"

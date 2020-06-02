@@ -4,30 +4,5 @@
   gather_facts: no
   vars:
     ansible_become: false
-
   tasks:
-    - name: stop vms
-      virt:
-        name: "{{ item }}"
-        state: destroyed
-      with_items: "{{ groups['k8s'] }}"
-      ignore_errors: true
-
-    - name: undefine vms
-      virt:
-        command: undefine
-        name: "{{ item }}"
-      with_items: "{{ groups['k8s'] }}"
-      ignore_errors: true
-
-    - name: destroy net
-      virt_net:
-        name: "{{ item }}"
-        state: absent
-      with_items: "{{ groups['k8s'] }}"
-      ignore_errors: true
-
-    - debug:
-        msg:
-          - "Please note that images and some other cached files are not removed."
-          - "Please remove it by yourself at: {{ vm_root_abs }}"
+    - include_tasks: "vm-destroy-{{ vm_type }}.yml"

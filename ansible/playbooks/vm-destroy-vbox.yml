@@ -1,0 +1,36 @@
+---
+- name: stop vms
+  shell: "VBoxManage controlvm {{ item }} poweroff"
+  with_items: "{{ groups['k8s'] }}"
+  ignore_errors: true
+
+- name: wait for stop to be completed
+  pause:
+    seconds: 1
+
+- name: destoy vms
+  shell: "VBoxManage unregistervm {{ item }} --delete"
+  with_items: "{{ groups['k8s'] }}"
+  ignore_errors: true
+
+- name: destroy storage
+  shell: "VBoxManage closemedium {{ vm_root_abs }}/vbox/k8s/{{ item }}/{{ item }}.vdi"
+  with_items: "{{ groups['k8s'] }}"
+  ignore_errors: true
+
+- name: destroy net
+  shell: "VBoxManage hostonlyif remove {{ item }}"
+  with_items:
+    - vboxnet0
+    - vboxnet1
+  ignore_errors: true
+
+- name: remove storage files
+  file:
+    path: "{{ vm_root_abs }}/vbox"
+    state: absent
+
+- debug:
+    msg:
+      - "Please note that images and some other cached files may be not removed."
+      - "Please remove them by yourself at: {{ vm_root_abs }}"

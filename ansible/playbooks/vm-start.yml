@@ -4,11 +4,18 @@
   vars:
     ansible_become: false
   tasks:
-    - name: start vms
+    - name: start libvirt vms
       virt:
         name: "{{ inventory_hostname }}"
         state: running
       delegate_to: localhost
+      when: "vm_type != 'vbox'"
+
+    - name: start vbox vms
+      shell: "VBoxManage startvm {{ inventory_hostname }}"
+      delegate_to: localhost
+      when: "vm_type == 'vbox'"
+
     - name: wait for vm to start
       wait_for:
         host: "{{ if_list[0].ipv4.addr }}"

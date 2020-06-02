@@ -1,0 +1,97 @@
+# tasks (vbox)
+---
+- name: create vm tftp dir
+  file:
+    path: "{{ vm_root_abs }}/tftp"
+    state: directory
+
+- name: create vm dist dir
+  file:
+    path: "{{ vm_root_abs }}/dist"
+    state: directory
+
+- name: download tftp image
+  get_url:
+    url: "https://gentoo.{{ repo_domain }}/files/gentoo-pxe.zip"
+    dest: "{{ vm_root_abs }}/dist/gentoo-pxe.zip"
+    checksum: "sha512:https://gentoo.{{ repo_domain }}/files/gentoo-pxe.zip.sha512"
+    force: false
+
+- name: unpack tftp image
+  unarchive:
+    src: "{{ vm_root_abs }}/dist/gentoo-pxe.zip"
+    dest: "{{ vm_root_abs }}/tftp"
+
+- name: create pxe config dir
+  file:
+    path: "{{ vm_root_abs }}/tftp/pxelinux.cfg"
+    state: directory
+
+- name: create pxe config
+  copy:
+    dest: "{{ vm_root_abs }}/tftp/pxelinux.cfg/01-{{ (hostvars[item]['if_list'] | selectattr('name', 'equalto', 'wan2') | first)['mac'] | replace(':', '-') }}"
+    content: |
+      {% set iflist=hostvars[item]['if_list'] %}
+      {% set wan0=(iflist | selectattr('name', 'equalto', 'wan0') | first) %}
+      {% set wan2=(iflist | selectattr('name', 'equalto', 'wan2') | first) %}
+      DEFAULT gentoo
+      LABEL gentoo
+          kernel boot/gentoo root=/dev/ram0 init=/linuxrc loop=/image.squashfs looptype=squashfs cdroot=1 real_root=/ dosshd nokeymap sshkey={{ lookup('file', ssh_key_location) | b64encode }} nodhcp net.conf=if={{ wan0.mac }},ip={{ wan0.ipv4.addr }}/{{ wan0.ipv4.mask }},if={{ wan2.mac }},dhcp dns=1.1.1.1
+          append initrd=boot/gentoo.igz
+      MENU LABEL gentoo
+  with_items: "{{ groups['k8s'] }}"
+
+- name: link pxe binary
+  file:
+    src: 'pxelinux.0'
+    dest: "{{ vm_root_abs }}/tftp/{{ item }}.pxe"
+    state: link
+  with_items: "{{ groups['k8s'] }}"
+
+- name: link tftp to virtualbox config
+  file:
+    src: "{{ vm_root_abs }}/tftp"
+    dest: "{{ '~/Library/VirtualBox' if ansible_system == 'Darwin' else '~/.config/VirtualBox' }}/TFTP"
+    state: link
+
+- name: make sure host net is destroyed
+  shell: "VBoxManage hostonlyif remove {{ item }}"
+  loop:
+    - vboxnet0
+    - vboxnet1
+  ignore_errors: true
+
+- name: create host adapters
+  shell: "VBoxManage hostonlyif create"
+  loop:
+    - vboxnet0
+    - vboxnet1
+
+- name: setup vboxnet0
+  shell: "VBoxManage hostonlyif ipconfig vboxnet0 --ip 10.118.10.1 --netmask 255.255.255.0"
+
+- name: setup vboxnet1
+  shell: "VBoxManage hostonlyif ipconfig vboxnet1 --ip 10.118.11.1 --netmask 255.255.255.0"
+
+- name: create vms
+  shell: "VBoxManage createvm --name {{ item }} --groups /k8s --ostype Gentoo_64 --register --default --basefolder {{ vm_root_abs }}/vbox"
+  with_items: "{{ groups['k8s'] }}"
+
+- name: configure vms params
+  shell: |
+    {% set iflist=hostvars[item]['if_list'] %}
+    VBoxManage modifyvm {{ item }} --memory {{ mem_mb }} --cpus {{ ansible_processor_vcpus }} --boot4 net \
+      --macaddress1 {{ (iflist | selectattr('name', 'equalto', 'wan2') | first)['mac'] | replace(':', '') }} \
+      --nic2 hostonly --cableconnected2 on --hostonlyadapter2 vboxnet0 \
+      --macaddress2 {{ (iflist | selectattr('name', 'equalto', 'wan0') | first)['mac'] | replace(':', '') }} \
+      --nic3 hostonly --cableconnected3 on --hostonlyadapter3 vboxnet1 \
+      --macaddress3 {{ (iflist | selectattr('name', 'equalto', 'wan1') | first)['mac'] | replace(':', '') }}
+  with_items: "{{ groups['k8s'] }}"
+
+- name: create imgs
+  shell: "VBoxManage createmedium disk --filename {{ vm_root_abs }}/vbox/k8s/{{ item }}/{{ item }}.vdi --size 10240"
+  with_items: "{{ groups['k8s'] }}"
+
+- name: attach storage
+  shell: "VBoxManage storageattach {{ item }} --storagectl SATA --type hdd --port 1 --medium {{ vm_root_abs }}/vbox/k8s/{{ item }}/{{ item }}.vdi"
+  with_items: "{{ groups['k8s'] }}"

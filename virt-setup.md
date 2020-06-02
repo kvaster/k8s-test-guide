@@ -111,37 +111,14 @@ cd initrd
 xz -dc ../gentoo.igz | cpio -id
 ```
 
-Модифицируем `init` файл:
+Модифицируем `init` файл с помощью [initrd.patch](initrd.patch). Данный патч добавляет несколько возможностей:
 
-```
---- a/init
-+++ b/init
-@@ -433,6 +433,9 @@ do
-                verify)
-                        VERIFY=1
-                ;;
-+               sshkey\=*)
-+                       SSH_KEY="${x#*=}"
-+               ;;
-        esac
- done
+* `sshkey` - ssh ключ для root пользователя, должен быть закодирован в base64 формате
+* `net.conf` - конфигурация сетевых карт (надо для virtualbox где не так просто настроить отдельный
+нормальный dhcp сервер по mac адресу карты)
+* `dns` - конфигурирование nameserver'ов через kernel параметры
 
-@@ -1344,6 +1347,14 @@ rundebugshell "before entering switch_root"
-
- preserve_log
-
-+if [ -n "${SSH_KEY}" ]
-+then
-+  mkdir -p ${CHROOT}/root/.ssh
-+  echo "${SSH_KEY}" | base64 -d > ${CHROOT}/root/.ssh/authorized_keys
-+  chmod 0700 ${CHROOT}/root/.ssh
-+  chmod 0600 ${CHROOT}/root/.ssh/authorized_keys
-+fi
-+
- # init_opts is set in the environment by the kernel when it parses the command line
- init=${REAL_INIT:-/sbin/init}
- if ! mountpoint "${CHROOT}" 1>/dev/null 2>&1
-```
+`net.conf` имеет вид: `if=<name|mac>,dhcp,if=<name|mac>,ip=<static_ip>,gw=<gateway_ip>`
 
 В опции в `tftp/pxelinut.cdf/default` добавляем `sshkey=XXX`, где xxx получается следующим образом:
 

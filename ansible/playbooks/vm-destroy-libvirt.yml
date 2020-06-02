@@ -1,0 +1,28 @@
+---
+- name: stop vms
+  virt:
+    name: "{{ item }}"
+    state: destroyed
+  with_items: "{{ groups['k8s'] }}"
+  ignore_errors: true
+
+- name: undefine vms
+  virt:
+    command: undefine
+    name: "{{ item }}"
+  with_items: "{{ groups['k8s'] }}"
+  ignore_errors: true
+
+- name: destroy net
+  virt_net:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - k8s-1
+    - k8s-2
+  ignore_errors: true
+
+- debug:
+    msg:
+      - "Please note that images and some other cached files may be not removed."
+      - "Please remove them by yourself at: {{ vm_root_abs }}"

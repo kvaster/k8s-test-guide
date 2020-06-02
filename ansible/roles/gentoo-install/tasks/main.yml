@@ -1,5 +1,12 @@
 # tasks
 ---
+- name: current local user
+  run_once: True
+  set_fact:
+    ansible_local_user: "{{ lookup('pipe', 'id -un') | d(lookup('pipe', 'whoami'), True) | d(lookup('env', 'USER'), True) |  d(lookup('env', 'user'), True) |  d(lookup('env', 'LOGNAME'), True) }}"
+  failed_when: ansible_local_user == ''
+  delegate_to: localhost
+
 - import_tasks: storage_partitions.yml
 - include_tasks: 'storage_{{ fs_type }}.yml'
 - import_tasks: base_system.yml
