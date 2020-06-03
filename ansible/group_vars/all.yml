@@ -23,6 +23,14 @@ users:
   - name: "{{ ansible_local_user }}"
     ssh_key: "{{ lookup('file', ssh_key_location) }}"
 
+virt_ips:
+  - 10.118.11.20
+  - 10.118.11.21
+  - 10.118.11.22
+
+virt_ips_per_node: 3
+vrrp_pass: 675bi5e5712j7
+
 if_list_libvirt:
   - name: wan0
     ipv4:

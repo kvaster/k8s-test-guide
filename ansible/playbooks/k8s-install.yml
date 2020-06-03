@@ -1,0 +1,95 @@
+---
+- hosts: k8s
+  tasks:
+    - name: install packages
+      portage:
+        package:
+          - app-emulation/containerd
+          - app-emulation/cri-tools
+          - net-firewall/conntrack-tools
+          - net-firewall/ebtables
+          - net-misc/socat
+          - sys-apps/ethtool
+          - sys-apps/dbus
+          - sys-cluster/kubernetes::kvaster
+          - app-admin/helm
+          - sys-cluster/keepalived
+        state: present
+
+    - name: autoload modules
+      copy:
+        dest: /etc/conf.d/modules
+        content: |
+          modules="br_netfilter"
+
+    - name: crictl config
+      copy:
+        dest: /etc/crictl.yaml
+        content: |
+          runtime-endpoint: unix:///run/containerd/containerd.sock
+          image-endpoint: unix:///run/containerd/containerd.sock
+          timeout: 10
+          debug: false
+
+    - name: sysctl forward
+      lineinfile:
+        path: /etc/sysctl.conf
+        regexp: ^#?net.ipv4.ip_forward
+        line: net.ipv4.ip_forward = 1
+
+    - name: sysctl nolocal bind ipv4
+      lineinfile:
+        path: /etc/sysctl.conf
+        regexp: ^#?net.ipv4.ip_nonlocal_bind
+        line: net.ipv4.ip_nonlocal_bind = 1
+
+    - name: sysctl nolocal bind ipv6
+      lineinfile:
+        path: /etc/sysctl.conf
+        regexp: ^#?net.ipv6.ip_nonlocal_bind
+        line: net.ipv6.ip_nonlocal_bind = 1
+
+    - name: bpf fs
+      lineinfile:
+        path: /etc/fstab
+        regexp: "/sys/fs/bpf"
+        line: none  /sys/fs/bpf  bpf  rshared  0 0
+
+    - name: vswitch routing table
+      lineinfile:
+        path: /etc/iproute2/rt_tables
+        regexp: "^1 +vswitch"
+        line: "1 vswitch"
+      when: "(balancer | default(false)) or (control | default(false))"
+
+    - name: keepalived config
+      template:
+        src: keepalived.conf
+        dest: /etc/keepalived/keepalived.conf
+
+    - name: vswitch default routes
+      blockinfile:
+        path: /etc/conf.d/net
+        block: |
+          # Additional routes for vswitch
+          routes_wan1="
+          ${routes_wan1}
+          10.118.11.0/24 dev wan1 src {{ if_list[1].ipv4.addr }} scope link
+          10.118.11.0/24 dev wan1 scope link table vswitch
+          10.118.12.0/24 dev wan1 scope link table vswitch
+          default via 10.118.11.1 table vswitch
+          "
+      when: "(balancer | default(false)) or (control | default(false))"
+
+    - name: resolve machine name to it's default ip
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          # Default machine ip
+          {{ if_list[1].ipv4.addr }} {{ inventory_hostname }}
+
+    - name: autostart containred
+      service:
+        name: containerd
+        enabled: yes
+        state: started

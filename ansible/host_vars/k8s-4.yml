@@ -9,3 +9,6 @@ fs_type: btrfs
 btrfs_profile: single
 arch: generic
 datacenter: qemu
+
+balancer: false
+control: false

@@ -30,6 +30,11 @@
     path: "{{ vm_root_abs }}/vbox"
     state: absent
 
+- name: remove link to tftp folder
+  file:
+    path: "{{ '~/Library/VirtualBox' if ansible_system == 'Darwin' else '~/.config/VirtualBox' }}/TFTP"
+    state: absent
+
 - debug:
     msg:
       - "Please note that images and some other cached files may be not removed."

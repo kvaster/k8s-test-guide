@@ -1,0 +1,15 @@
+---
+- hosts: k8s
+  gather_facts: no
+  tasks:
+    - name: reboot
+      shell: "shutdown -r now"
+
+    - name: wait for vm to start
+      wait_for:
+        host: "{{ if_list[0].ipv4.addr }}"
+        state: started
+        port: 22
+        delay: 30
+        timeout: 300
+      delegate_to: localhost

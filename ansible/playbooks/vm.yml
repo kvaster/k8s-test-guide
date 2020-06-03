@@ -7,3 +7,9 @@
 
 - name: vm install
   import_playbook: vm-install.yml
+
+- name: k8s install
+  import_playbook: k8s-install.yml
+
+- name: final reboot
+  import_playbook: vm-reboot.yml
