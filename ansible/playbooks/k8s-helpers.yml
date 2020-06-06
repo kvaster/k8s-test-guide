@@ -1,0 +1,33 @@
+---
+- hosts: k8s
+  vars:
+    ansible_become: false
+  tasks:
+    - name: helpers folder
+      file:
+        path: "~/k8s"
+        state: directory
+
+    - copy:
+        src: kube-setup.sh
+        dest: "~/k8s/"
+      when: "inventory_hostname == 'k8s-1'"
+
+    - copy:
+        src: kubeadm.yml
+        dest: "~/k8s/"
+      when: "inventory_hostname == 'k8s-1'"
+
+    - copy:
+        src: kube-reset.sh
+        dest: "~/k8s/"
+
+    - copy:
+        src: kube-postjoin.sh
+        dest: "~/k8s/"
+      when: "inventory_hostname != 'k8s-1'"
+
+    - copy:
+        src: cilium-helm.sh
+        dest: "~/k8s/"
+      when: "inventory_hostname == 'k8s-1'"

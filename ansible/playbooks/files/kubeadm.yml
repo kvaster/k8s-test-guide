@@ -9,7 +9,7 @@ bootstrapTokens:
   - authentication
 kind: InitConfiguration
 localAPIEndpoint:
-  advertiseAddress: 10.118.10.20
+  advertiseAddress: 10.118.12.20
   bindPort: 6443
 nodeRegistration:
   criSocket: /run/containerd/containerd.sock
@@ -21,12 +21,15 @@ nodeRegistration:
 apiServer:
   certSANs:
   - 127.0.0.1
-  - 10.118.10.100
   timeoutForControlPlane: 4m0s
 apiVersion: kubeadm.k8s.io/v1beta2
 certificatesDir: /etc/kubernetes/pki
 clusterName: kubernetes
-controllerManager: {}
+controllerManager:
+  extraArgs:
+    node-monitor-period: 2s
+    node-monitor-grace-period: 16s
+    pod-eviction-timeout: 30s
 dns:
   type: CoreDNS
 etcd:
@@ -34,11 +37,15 @@ etcd:
     dataDir: /var/lib/etcd
 imageRepository: k8s.gcr.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.18.1
+kubernetesVersion: v1.18.3
 networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16
   serviceSubnet: 10.225.100.0/24
 scheduler: {}
-controlPlaneEndPoint: "10.118.10.100:6443"
+controlPlaneEndpoint: "10.118.12.100:6443"
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+nodeStatusUpdateFrequency: 4s
 

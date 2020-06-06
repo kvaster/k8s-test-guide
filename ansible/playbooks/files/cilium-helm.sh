@@ -81,5 +81,7 @@ OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${NODE_PORT}"
 OPTS="${OPTS} ${NO_KUBEPROXY}"
 
+helm repo add cilium https://helm.cilium.io/
+
 echo helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS}
 helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS} > cilium.yaml
