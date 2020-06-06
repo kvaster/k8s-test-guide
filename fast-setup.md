@@ -57,7 +57,7 @@ sh cilium-helm.sh
 Нам останется только запустить наш k8s файлик:
 
 ```
-kubectl apply -f cilium.yaml
+kubectl apply -f cilium.yml
 ```
 
 Для того, чтобы продолжить, надо подождать пока появится сеть.
