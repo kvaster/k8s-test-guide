@@ -6,6 +6,7 @@
 
 ```
 git clone https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner
+cd sig-storage-local-static-provisioner
 ```
 
 Создаём storage class (будет называться fast-disks):
