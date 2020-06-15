@@ -1,7 +1,6 @@
 ---
 - hosts: localhost
   connection: local
-  gather_facts: no
   vars:
     ansible_become: false
   tasks:

@@ -6,5 +6,15 @@
   poll: 0
   ignore_errors: true
 
+# For some reason this tries to become room. Previous variant as well:
+#   local_action: wait_for host={{ ansible_host }} state=started port=22 delay=30 timeout=300
+# TODO: Investigate and try to remove `become` requirement to avoid -K flag in ansible-playbook execution
 - name: Waiting for server to come back
-  local_action: wait_for host={{ ansible_host }} state=started port=22 delay=30 timeout=300
+  wait_for:
+    host: "{{ ansible_host }}"
+    state: started
+    port: 22
+    delay: 30
+    timeout: 600
+  delegate_to: localhost
+  become: false

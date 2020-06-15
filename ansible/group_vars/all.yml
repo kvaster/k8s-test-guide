@@ -5,7 +5,8 @@ ansible_python_interpreter: /usr/bin/python3
 ansible_ssh_common_args: -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
 
 # password is generated this way: openssl passwd -1 '{password}'
-root_password: "$1$wufpo0JW$RFRCnL9vrpxgRgCOsSN1N/"
+# Below is the result for `openssl passwd -1 'superpass'`
+root_password: "$1$ertRT1Bx$fGF3AQh11aG4XAgsO1AZN."
 
 timezone: Europe/Minsk
 
