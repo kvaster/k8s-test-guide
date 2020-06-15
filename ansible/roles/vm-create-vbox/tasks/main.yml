@@ -15,7 +15,6 @@
     url: "https://gentoo.{{ repo_domain }}/files/gentoo-pxe.zip"
     dest: "{{ vm_root_abs }}/dist/gentoo-pxe.zip"
     checksum: "sha512:https://gentoo.{{ repo_domain }}/files/gentoo-pxe.zip.sha512"
-    force: false
 
 - name: unpack tftp image
   unarchive:
@@ -78,9 +77,12 @@
   with_items: "{{ groups['k8s'] }}"
 
 - name: configure vms params
+  # Generally VBoxManage expects desired number of vcpus in --cpus. However it interprets is as cores=vcpus, and
+  # threads_per_core=1 which is typically wrong nowadays. Keeping cpus as number of cores until VirtualBox allows
+  # to take advantage of hyperthreading.
   shell: |
     {% set iflist=hostvars[item]['if_list'] %}
-    VBoxManage modifyvm {{ item }} --memory {{ mem_mb }} --cpus {{ ansible_processor_vcpus }} --boot4 net \
+    VBoxManage modifyvm {{ item }} --memory {{ mem_mb }} --cpus {{ ansible_processor_cores }} --boot4 net \
       --macaddress1 {{ (iflist | selectattr('name', 'equalto', 'wan2') | first)['mac'] | replace(':', '') }} \
       --nic2 hostonly --cableconnected2 on --hostonlyadapter2 vboxnet0 \
       --macaddress2 {{ (iflist | selectattr('name', 'equalto', 'wan0') | first)['mac'] | replace(':', '') }} \

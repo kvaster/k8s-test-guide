@@ -11,5 +11,5 @@
         state: started
         port: 22
         delay: 30
-        timeout: 300
+        timeout: 600
       delegate_to: localhost
