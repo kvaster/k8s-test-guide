@@ -15,14 +15,14 @@ net-dns/dnsmasq script tftp
 
 ```
 cd ansible
-ansible-playbook -e repo_name=myhost.com playbooks/vm.yml
+ansible-playbook -e repo_domain=myhost.com playbooks/vm.yml
 ```
 
 Для virtualbox:
 
 ```
 cd ansible
-ansible-playbook -e repo_name=myhost.com -e vm_type=vbox playbooks/vm.yml
+ansible-playbook -e repo_domain=myhost.com -e vm_type=vbox playbooks/vm.yml
 ```
 
 Для удаления машин используем `vm-destroy.yml` playbook.
