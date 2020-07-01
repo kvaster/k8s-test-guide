@@ -2,9 +2,11 @@
 
 API_SERVER_IP=10.118.12.100
 API_SERVER_PORT=6443
-CILIUM_VERSION=1.7.2
+CILIUM_VERSION=1.8.0
 CILIUM_IF=wan1
 TMP=cilium
+
+CILIUM_COMPAT_VERSION=1.7
 
 OPTS="--namespace kube-system"
 
@@ -63,12 +65,19 @@ NO_KUBEPROXY="
 --set global.k8sServiceHost=$API_SERVER_IP
 --set global.k8sServicePort=$API_SERVER_PORT
 --set global.kubeProxyReplacement=strict
+--set config.masquerade=true
+--set global.nativeRoutingCIDR=10.244.0.0/16
 "
 
 DSR="
 --set global.tunnel=disabled
 --set global.autoDirectNodeRoutes=true
 --set global.nodePort.mode=dsr
+"
+
+# global.bpf.mapDynamicSizeRatio
+ACCEL="
+--set global.nodePort.acceleration=native
 "
 
 OPTS="--namespace kube-system --set global.tag=v${CILIUM_VERSION}"
@@ -81,7 +90,13 @@ OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${NODE_PORT}"
 OPTS="${OPTS} ${NO_KUBEPROXY}"
 
-helm repo add cilium https://helm.cilium.io/
+if [ "$1" == "preflight" ]; then
+  OPTS="${OPTS} --set preflight.enabled=true --set agent.enabled=false --set config.enabled=false --set operator.enabled=false"
+fi
+
+if [ "$1" == "compat" ]; then
+  OPTS="${OPTS} --set config.upgradeCompatibility=${CILIUM_COMPAT_VERSION} --set agent.keepDeprecatedProbes=true"
+fi
 
 echo helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS}
 helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS} > cilium.yml
