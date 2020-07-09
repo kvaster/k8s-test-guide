@@ -20,6 +20,7 @@ NO_KUBE_PROXY="
 
 NO_BPF_MASQ="
 --set config.bpfMasquerade=false
+--set global.devices=${CILIUM_IF}
 "
 
 # host reachable services
