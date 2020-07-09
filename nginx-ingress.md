@@ -7,7 +7,7 @@
 ## TODO
 
 [ ] Настроить nginx ingress в виде DaemonSet вместо Deployment. Для мелкого кластера нам надо, чтобы nginx запускался на каждой машине.
-[ ] Научиться настраивать Deployment (для большого кластера использовать DaemonSet не правильно) с node affinity - чтобы на каждой node запускался максимум один nginx ingress pod.
+[x] ~~Научиться настраивать Deployment (для большого кластера использовать DaemonSet не правильно) с node affinity - чтобы на каждой node запускался максимум один nginx ingress pod.~~ - это всё делается с помочшью DaemonSet.
 
 ## Тестовые эхо сервисы.
 
@@ -69,43 +69,48 @@ spec:
 
 ## Установка самого nginx-ingress
 
-Воспользуемся 'простым' способом. Для начала установим то, что обязательно надо для всех вариантов:
+Воспользуемся 'простым' способом. Скачаем файл установки для bare metal:
 
-`kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml`
+`wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml`
 
-## Ingress сервис
-
-Создаём ingress сервис. Хочу заметить, что тип в spec мы специально указываем `ClusterIP`, чтобы сервис не был в виде
-`NodePort`, как указано в примере для baremetal. Плюс мы добавляем секцию `externalIPs` с помощью которой как раз и
+Нахом секцию сервиса в этом файле. Поиск делаем по тегу `controller-service.yaml`.
+В секции spec поменяем `NodePort` на `ClusterIP`. Плюс мы добавляем секцию `externalIPs` с помощью которой как раз и
 выставляем наружу наш ingress. В `externalIPs` мы должны перечислить все внешние ip, которые мы используем.
+По итогу эта секция будет выглядеть примерно так:
 
 ```
+# Source: ingress-nginx/templates/controller-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: ingress-nginx
-  namespace: ingress-nginx
   labels:
+    helm.sh/chart: ingress-nginx-2.10.0
     app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/version: 0.33.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
 spec:
   type: ClusterIP
   ports:
     - name: http
       port: 80
-      targetPort: 80
       protocol: TCP
+      targetPort: http
     - name: https
       port: 443
-      targetPort: 443
       protocol: TCP
+      targetPort: https
   externalIPs:
-  - 159.69.129.18
-  - 159.69.129.19
-  - 159.69.129.20
+  - 10.118.11.20
+  - 10.118.11.21
+  - 10.118.11.22
   selector:
     app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/component: controller
 ---
 ```
 
