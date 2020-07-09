@@ -60,7 +60,6 @@
         path: /etc/iproute2/rt_tables
         regexp: "^1 +vswitch"
         line: "1 vswitch"
-      when: "(balancer | default(false)) or (control | default(false))"
 
     - name: keepalived config
       template:
@@ -74,12 +73,15 @@
           # Additional routes for vswitch
           routes_wan1="
           ${routes_wan1}
-          10.118.11.0/24 dev wan1 src {{ if_list[1].ipv4.addr }} scope link
+          10.118.11.0/24 dev wan1
           10.118.11.0/24 dev wan1 scope link table vswitch
           10.118.12.0/24 dev wan1 scope link table vswitch
           default via 10.118.11.1 table vswitch
           "
-      when: "(balancer | default(false)) or (control | default(false))"
+          rules_wan1="
+          from all to 10.244.0.0/16 lookup main priority 200
+          from 10.118.11.0/24 table vswitch priority 201
+          "
 
     - name: resolve machine name to it's default ip
       blockinfile:

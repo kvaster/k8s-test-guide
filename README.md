@@ -235,9 +235,6 @@ vrrp_instance wan_0 {
     virtual_ipaddress {
         10.118.11.20
     }
-    virtual_rules {
-        from 10.118.11.20 table vswitch
-    }
 }
 ```
 
@@ -252,7 +249,7 @@ vrrp_instance wan_0 {
 
 ```
 routes_wan1="
-10.118.11.0/24 dev wan1 src 10.118.12.20 scope link
+10.118.11.0/24 dev wan1
 10.118.11.0/24 dev wan1 scope link table vswitch
 10.118.12.0/24 dev wan1 scope link table vswitch
 default via 10.118.11.1 table vswitch
