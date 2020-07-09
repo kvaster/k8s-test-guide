@@ -45,7 +45,7 @@ OPTS="${OPTS} ${NO_KUBE_PROXY}"
 OPTS="${OPTS} ${NO_BPF_MASQ}"
 OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${DIRECT_ROUTING}"
-#OPTS="${OPTS} ${DSR}"
+OPTS="${OPTS} ${DSR}"
 
 if [ "$1" == "preflight" ]; then
   OPTS="${OPTS} --set preflight.enabled=true --set agent.enabled=false --set config.enabled=false --set operator.enabled=false"
