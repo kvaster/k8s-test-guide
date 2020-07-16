@@ -83,3 +83,5 @@ psql -h ${PG_IP} -U dbadmin postgres
 ```
 kubectl delete postgresql acid-pg-main
 ```
+
+TODO: описать как делать fine-tune postgresql'я
