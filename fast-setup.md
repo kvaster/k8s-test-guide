@@ -48,8 +48,13 @@ sh kube-postjoin.sh
 
 *  На одной из машин, например, на первой (k8s-1), даем команду на установку CNI cilim.
 
+Перед запуском надо установить helm cilium репозитарий:
 ```shell script
-sh ciliym-helm.sh && kubectl apply -f cillium.yml
+helm repo add cilium https://helm.cilium.io/
+```
+
+```shell script
+sh cilium-helm.sh && kubectl apply -f cillium.yml
 ```
 
 Для того, чтобы продолжить, надо подождать пока появится сеть. Проверить можно, например, так:
