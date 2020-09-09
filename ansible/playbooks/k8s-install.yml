@@ -11,10 +11,15 @@
           - net-misc/socat
           - sys-apps/ethtool
           - sys-apps/dbus
-          - sys-cluster/kubernetes::kvaster
+          - sys-cluster/kubernetes
           - app-admin/helm
           - sys-cluster/keepalived
         state: present
+
+    - name: kubelet conf.d
+      template:
+        src: kubelet.confd
+        dest: /etc/conf.d/kubelet
 
     - name: autoload modules
       copy:

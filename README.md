@@ -12,11 +12,8 @@
 Начнём сразу с нерешённых или до конца не решённых вопросов.
 
 **High priority**
-* [x] ~~Как-то не понятно как организовывать https трафик внутри кластера~~ - собственно решается это достаточно просто с помощью внешних доменных имён и редиректом в coredns, но вопрос надо ли это. Istio может это делать автоматом.
 * [ ] Разобраться с общими параметрами health check для кластера. Это ``node-status-update-frequency`` для kubelet, ``node-monitor-period``, ``node-monitor-grace-period``, ``pod-eviction-timeout`` для controller-manager. Инфа [тут](https://habr.com/ru/company/flant/blog/326062/).
-* [x] После старта даже если мы указали правильно на control-plane внутренние адреса, сервисы всё равно слушают на внешнем интерфейса. ~~Возможно надо использвать ``--hostname-override``~~. Информация [тут](https://github.com/kubernetes/kubernetes/issues/33618).
 * [ ] Задача внутренних адресов для control plane решается тем, чтобы резолвить hostname в правильный ip адрес. Самый простой способ это сделать - добавить имя и ip в ``/etc/hosts``, но я не уверен на сколько это хорошее решение. Если задавать ``--hostname-override``, то часть сервисов всё равно использует другой ip и как следствие весь кластер не поднимается. Но ``hostname -i`` для определения главного адреса сервера может использоваться и в других сервисах.
-* [ ] Разобраться как делать разные динамические конфиги для kubelet. [Тут немного про это](https://github.com/kubernetes/kubeadm/issues/1464). [Тут ещё немного](https://github.com/kubernetes/kubeadm/issues/970). [Dynamic conif](https://github.com/kubernetes/enhancements/issues/281). [И тут](https://kubernetes.io/docs/tasks/administer-cluster/reconfigure-kubelet/). [И ещё](https://kubernetes.io/docs/reference/setup-tools/kubeadm/implementation-details/). Почему-то feature gate для них стоит deprecated, но есть команда ``kubeadm alpha kubelet config enable-dynamic``
 
 **Medium priority**
 * [ ] Load balancing для control plane
@@ -26,8 +23,6 @@
 * [x] Ротация внешних сертификатов (https://cert-manager.io). Решение находится [тут](certificates.md)
 * [ ] Выбрать ingress контроллер (nginx, skipper e.t.c.).
 * [ ] Надо как-нибдь разобраться с kubernetes federation и cilium cluster mesh. Это надо для запуска в режиме гибридных кластеров.
-* [ ] Достаточно ли ingress контроллера плюс cilium load balancer'а для нормальной балансировки трафика между pod'ами.
-* [ ] Разобратья зачем нужны service mesh (lstio, linerd, skipper ...)
 * [ ] Мониторинг сервисов. Понятно что прометей, но надо его прикручивать.
 * [ ] Сбор логов сервисов.
 
@@ -164,6 +159,26 @@ Kubernetes аллоцирует под себя нижний диапазон п
 монтировать bpf подсистему с помощью fstab в host системе. В ``/etc/fstab`` прописываем:
 
 ``none  /sys/fs/bpf  bpf  rshared  0 0``
+
+На текущий момент (версия 1.19.0) kubernetes больше не требует дополнительных патчей, чтобы нормально запускаться на
+openrc (gentoo), а также делать upgrade без kube-proxy, но раньше мы использовали свою патченую версию и в ней мы
+кроме всего прочего вписывали правильные стартовые параметры для kubelet. Поэтому после установки из gentoo mainline
+важно эти параметры проставить самим в `/etc/conf.d/kubelet`:
+
+```
+###
+# Kubernetes Kubelet (worker) config
+
+KUBEADM_ENV="/var/lib/kubelet/kubeadm-flags.env"
+[[ -f "${KUBEADM_ENV}" ]] && . "${KUBEADM_ENV}"
+
+KUBELET_KUBECONFIG_ARGS="--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
+
+KUBELET_EXTRA_ARGS=""
+
+command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEADM_ARGS} ${KUBELET_EXTRA_ARGS}"
+```
 
 ### HA режим для control panel
 
@@ -395,35 +410,13 @@ kubeadm join <CONTROL_PLANE_ADDR>
 
 ## Об некоторых нюансах
 
-### kubectl
-
-Когда мы ставим kubectl из нашего репозитария, то по стандарту получаем настройки в ``/etc/conf.d/kubelet``, которые
-подтягивают созданный kubeadm'ом env файл:
-
-```
-KUBEADM_ENV="/var/lib/kubelet/kubeadm-flags.env"
-[[ -f "${KUBEADM_ENV}" ]] && . "${KUBEADM_ENV}"
-
-KUBELET_KUBECONFIG_ARGS="--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
-KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
-
-command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEADM_ARGS}"
-```
+### kubelet
 
 Про параметры запуска можно почитать [тут](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/kubelet-integration).
 
 Для production кластера надо по-хорошему подтюнить параметры GC для images и pod'ов, добавить опции
 типа ``--maximum-dead-containers`` и т.д.
 Про это описано [тут](https://v1-17.docs.kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection).
-
-### kubeadm
-
-kubeadm, который лежит в нашем репозитарии, собирается с несколькими патчами, которых нет в upstream и некоторых из них пока не будет:
-
-* Патч порядка старта kubectl во время bootstrap. Systemd по дефолту будет рестартовать сервис пока он не стартанёт, а в upstream версии kubectl стартуется до того, как на диск будет записан весь конфиг (на этот патч скоро также сделаю PR)
-* Специальный патч, который убирает фазу проверки kube-proxy во время upgrade'а кластера. Это UGLY hack. Этот патч будет убран тогда, когда разработчики починят это у себя правильно:
-https://github.com/kubernetes/kubeadm/issues/1756
-https://github.com/kubernetes/kubeadm/issues/1318
 
 ### etcd
 
@@ -445,10 +438,13 @@ https://github.com/kubernetes/kubeadm/issues/1318
 
 Дополнительные и изменённые пакеты (overlay) находятся в репозитарии: https://github.com/kvaster/kvaster-gentoo
 
-В хост систему мы ставим только kubeadm, kubectl и kubelet. В оверлее сейчас лежит модицифированный kubelet - там поменяны default настройки запуска (`conf.d/kubelet`). А также kubeadm - на него наложен патчи, которые описывались ранее.
+В хост систему мы ставим только kubeadm, kubectl и kubelet.
 
 Патч для отключения kube-proxy обновления нужен будет до тех пор, пока не будут пофикшены следующие issues:
 [1756](https://github.com/kubernetes/kubeadm/issues/1756), [1318](https://github.com/kubernetes/kubeadm/issues/1318).
+
+На текущий момент (kubernetes 1.19.0) патч для запуска на gentoo больше не нужен, также для сделан временный workaround для
+пропускания фазы обновления kube-proxy.
 
 ### Обновление control plane'а
 
