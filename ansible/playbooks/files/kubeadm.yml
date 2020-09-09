@@ -30,7 +30,9 @@ controllerManager:
     node-monitor-period: 2s
     node-monitor-grace-period: 16s
     pod-eviction-timeout: 30s
-dns:
+    oidc-issuer-url: https://accounts.google.com
+    oidc-username-claim: email
+    oidc-client-id: xxx.apps.googleusercontent.com
   type: CoreDNS
 etcd:
   local:
