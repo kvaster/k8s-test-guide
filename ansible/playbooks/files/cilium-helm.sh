@@ -2,11 +2,11 @@
 
 API_SERVER_IP=10.118.12.100
 API_SERVER_PORT=6443
-CILIUM_VERSION=1.8.1
+CILIUM_VERSION=1.8.3
 CILIUM_IF=wan1
 TMP=cilium
 
-CILIUM_COMPAT_VERSION=1.7
+CILIUM_COMPAT_VERSION=1.8.1
 
 # no kube-proxy
 NO_KUBE_PROXY="
@@ -43,13 +43,16 @@ DSR="
 
 OPTS="--namespace kube-system --set global.tag=v${CILIUM_VERSION}"
 OPTS="${OPTS} ${NO_KUBE_PROXY}"
-OPTS="${OPTS} ${NO_BPF_MASQ}"
+#OPTS="${OPTS} ${NO_BPF_MASQ}"
 OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${DIRECT_ROUTING}"
 OPTS="${OPTS} ${DSR}"
 
+FILE=cilium.yml
+
 if [ "$1" == "preflight" ]; then
   OPTS="${OPTS} --set preflight.enabled=true --set agent.enabled=false --set config.enabled=false --set operator.enabled=false"
+  FILE=cilium-preflight.yml
 fi
 
 if [ "$1" == "compat" ]; then
@@ -57,4 +60,4 @@ if [ "$1" == "compat" ]; then
 fi
 
 echo helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS}
-helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS} > cilium.yml
+helm template cilium cilium/cilium --version ${CILIUM_VERSION} ${OPTS} > $FILE
