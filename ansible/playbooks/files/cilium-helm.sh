@@ -43,7 +43,7 @@ DSR="
 
 OPTS="--namespace kube-system --set global.tag=v${CILIUM_VERSION}"
 OPTS="${OPTS} ${NO_KUBE_PROXY}"
-#OPTS="${OPTS} ${NO_BPF_MASQ}"
+OPTS="${OPTS} ${NO_BPF_MASQ}"
 OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${DIRECT_ROUTING}"
 OPTS="${OPTS} ${DSR}"

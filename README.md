@@ -180,6 +180,16 @@ KUBELET_EXTRA_ARGS=""
 command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEADM_ARGS} ${KUBELET_EXTRA_ARGS}"
 ```
 
+*ВНИМАНИЕ!*
+Для kubernetes 1.9 и выше на btrfs надо выключить опцию ограничения local storage, иначе всё крашится:
+
+```
+KUBELET_EXTRA_ARGS="--feature-gates='LocalStorageCapacityIsolation=false'"
+```
+
+* https://github.com/kubernetes/kubernetes/issues/65204
+* https://github.com/ubuntu/microk8s/issues/1587
+
 ### HA режим для control panel
 
 Control plane отличается от остальных сервисов тем, что каждый control plane работает отдельно.
