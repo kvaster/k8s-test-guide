@@ -117,12 +117,12 @@ spec:
 А теперь настроим ingress сервис и укажем наши 2 эхо сервиса:
 
 ```
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: example-ingress
   annotations:
-    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
   rules:
@@ -130,10 +130,12 @@ spec:
     http:
       paths:
         - path: /apple
+          pathType: ImplementationSpecific
           backend:
             serviceName: apple-service
             servicePort: 5678
         - path: /banana
+          pathType: ImplementationSpecific
           backend:
             serviceName: banana-service
             servicePort: 5678

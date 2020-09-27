@@ -10,7 +10,7 @@
 
 затем установим сам сервис (0.12.0 - последняя версия на момент написания этого guide'а):
 
-`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.15.2/cert-manager.yaml`
+`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.0.2/cert-manager.yaml`
 
 можем проверить, что всё хорошо:
 
