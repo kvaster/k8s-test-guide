@@ -22,6 +22,11 @@ apiServer:
   certSANs:
   - 127.0.0.1
   timeoutForControlPlane: 4m0s
+  extraArgs:
+    oidc-issuer-url: https://accounts.google.com
+    oidc-client-id: xxx.apps.googleusercontent.com
+    oidc-username-claim: email
+    oidc-groups-claim: groups
 apiVersion: kubeadm.k8s.io/v1beta2
 certificatesDir: /etc/kubernetes/pki
 clusterName: kubernetes
@@ -30,16 +35,13 @@ controllerManager:
     node-monitor-period: 2s
     node-monitor-grace-period: 16s
     pod-eviction-timeout: 30s
-    oidc-issuer-url: https://accounts.google.com
-    oidc-username-claim: email
-    oidc-client-id: xxx.apps.googleusercontent.com
   type: CoreDNS
 etcd:
   local:
     dataDir: /var/lib/etcd
 imageRepository: k8s.gcr.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.18.3
+kubernetesVersion: v1.19.2
 networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16

@@ -16,16 +16,8 @@ ansible-playbook -e repo_domain=myhost.com playbooks/vm.yml
 ansible-playbook -e repo_domain=myhost.com vm_type=vbox playbooks/vm.yml
 ```
 
-* Для начала удостоверимся, что в manifests ничего нету (надо будет сделать, чтобы это было автоматически). Это надо
-будет делать на всех машинах, включаемых в кластер:
-
-```shell script
-ls -a /etc/kubernetes/manifests
-# There may be .keep_sys-cluster_kubernetes-0 in there. Remove if present:
-rm -Rf /etc/kubernetes/manifests
-```
-
-Последний kubeadm слишком рьяно проверяет наличие файлов в этом каталоге на bootsrap'е
+По стандарту скрипт ищет ключ локального пользователя в `~/.ssh/id_ed25519.pub`. Если вы размещаете свой ключ
+в другом месте, то надо добавитье ещё одну переменную: `-e ssh_key_location=MY_PUB_SSH_KEY`.
 
 * На первой машине запускаем bootstrap k8s:
 

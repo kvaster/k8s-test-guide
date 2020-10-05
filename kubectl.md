@@ -4,7 +4,7 @@
 
 На сервере надо разрешить доступ к kube-apiserver. Замените адрес API_SERVER, если он другой. Выполните следующуее
 на всех входящий серверах, которые будут включены в DNS запись нашего сервера (например kapi.example.com). В DNS запись
-можно включить, например, несколько серверов из группы ingress. В нашем случае они доступны через внешние IP VLAN. 
+можно включить, например, несколько серверов из группы ingress. В нашем случае они доступны через внешние IP VLAN.
 
 ```shell script
 API_SERVER=10.118.12.100
@@ -32,7 +32,7 @@ vi kubeadmconf.yml
 # Deprecated, but works. Proposes to use instead: kubeadm init phase upload-config
 kubeadm config upload from-file --config kubeadmconf.yml
 
-# Do the rest on each server  
+# Do the rest on each server
 # Check cert before
 openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text -noout|less
 # Recreate
@@ -59,17 +59,18 @@ OIDC провайдером, которому мы доверяем. Напри�
 
 Далее необходимо добавить опции в apiserver. При добавлении новой вершины в кластер, kubeadm использует данные из
 конфигурации кластера. При уже добавленной вершине, данные берутся из файла `/etc/kubernetes/manifests/kube-apiserver.yaml`.
-На текущий момент (июль 2020) мне неизвестен автоматический способ применения конфигурации сразу и везде, поэтому 
+На текущий момент (июль 2020) мне неизвестен автоматический способ применения конфигурации сразу и везде, поэтому
 необходимо поменять конфигурацию и обновить manifest на всех узлах Control Plane. Ниже описаны из
 
 ```yaml
 # Add this to kubeadmconf.yml (see below)
-controllerManager:
+apiServer:
   extraArgs:
-    # Add only following 3 lines. The rest is already there.
+    # Add only following 4 lines. The rest is already there.
     oidc-client-id: xxx.apps.googleusercontent.com
     oidc-issuer-url: https://accounts.google.com
     oidc-username-claim: email
+    oidc-groups-claim: groups
 # Add this to /etc/kubernetes/manifests/kube-apiserver.yaml on all Control Plane nodes
 spec:
   containers:
@@ -96,6 +97,8 @@ vi /etc/kubernetes/manifests/kube-apiserver.yaml
 # Restart kubelet
 rc-service kubelet restart
 ```
+
+*TODO:* перегенерировать конфиг можно в автоматическом режиме с помощью kubeadm.
 
 ## Установка kubectl
 

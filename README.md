@@ -187,7 +187,9 @@ command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEAD
 KUBELET_EXTRA_ARGS="--feature-gates='LocalStorageCapacityIsolation=false'"
 ```
 
-* https://github.com/kubernetes/kubernetes/issues/65204
+* https://github.com/kubernetes/kubernetes/issues/65204 (see last comments)
+* https://github.com/kubernetes/kubernetes/issues/94335
+* https://github.com/ubuntu/microk8s/issues/1570
 * https://github.com/ubuntu/microk8s/issues/1587
 
 ### HA режим для control panel

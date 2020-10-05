@@ -11,10 +11,17 @@
           - net-misc/socat
           - sys-apps/ethtool
           - sys-apps/dbus
+          - sys-cluster/kubeadm
           - sys-cluster/kubernetes
           - app-admin/helm
           - sys-cluster/keepalived
         state: present
+
+    - name: remove manifest placeholder folder
+      file:
+        path: /etc/kubernetes/manifests
+        state: absent
+      ignore_errors: true
 
     - name: kubelet conf.d
       template:

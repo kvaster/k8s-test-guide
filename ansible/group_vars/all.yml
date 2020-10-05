@@ -1,4 +1,3 @@
-ansible_become: true
 ansible_become_method: sudo
 ansible_become_user: root
 ansible_python_interpreter: /usr/bin/python3
@@ -18,7 +17,7 @@ ssh_key_location: '~/.ssh/id_ed25519.pub'
 # libvirt or vbox
 vm_type: libvirt
 
-mem_mb: 2048
+mem_mb: 3072
 
 users:
   - name: "{{ ansible_local_user }}"
