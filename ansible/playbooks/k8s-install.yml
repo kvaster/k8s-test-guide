@@ -86,9 +86,7 @@
           routes_wan1="
           ${routes_wan1}
           10.118.11.0/24 dev wan1
-          10.118.11.0/24 dev wan1 scope link table vswitch
-          10.118.12.0/24 dev wan1 scope link table vswitch
-          default via 10.118.11.1 table vswitch
+          default dev wan1 table vswitch
           "
           rules_wan1="
           from all to 10.244.0.0/16 lookup main priority 200

@@ -70,7 +70,7 @@
   shell: "VBoxManage hostonlyif ipconfig vboxnet0 --ip 10.118.10.1 --netmask 255.255.255.0"
 
 - name: setup vboxnet1
-  shell: "VBoxManage hostonlyif ipconfig vboxnet1 --ip 10.118.11.1 --netmask 255.255.255.0"
+  shell: "VBoxManage hostonlyif ipconfig vboxnet1 --ip 10.118.13.1 --netmask 255.255.255.0"
 
 - name: create vms
   shell: "VBoxManage createvm --name {{ item }} --groups /k8s --ostype Gentoo_64 --register --default --basefolder {{ vm_root_abs }}/vbox"
