@@ -12,7 +12,8 @@
           - sys-apps/ethtool
           - sys-apps/dbus
           - sys-cluster/kubeadm
-          - sys-cluster/kubernetes
+          - sys-cluster/kubelet
+          - sys-cluster/kubectl
           - app-admin/helm
           - sys-cluster/keepalived
         state: present
