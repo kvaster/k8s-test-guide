@@ -4,13 +4,9 @@
 
 ## Установка
 
-Установим его в наш кластер согласно официальному guide'у. Для начала создадим для него отдельный namespace:
+Установим его в наш кластер согласно официальному guide'у:
 
-`kubectl create namespace cert-manager`
-
-затем установим сам сервис (0.12.0 - последняя версия на момент написания этого guide'а):
-
-`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.0.2/cert-manager.yaml`
+`kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml`
 
 можем проверить, что всё хорошо:
 
@@ -21,7 +17,7 @@
 Настроим с помощью yaml файла через kubectl. Пример конфигурации для letsencrypt staging:
 
 ```
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-staging
