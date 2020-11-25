@@ -168,6 +168,8 @@ controller:
     ssl-session-timeout: 1h
     ssl-session-ticket-key: "Ayinjzn7b0Sr4DuXgItlEYExdGPVFqTKz5HWbxQWCneY71r272hbwS0uvgR20bgArOypH7biJEsPGrX2lL9OMN6wgApW4ZPjydQ7BLb/CXk="
     ssl-session-tickets: 'true'
+    hsts: 'true'
+    hsts-max-age: 15768000
 ```
 
 *ВНИМАНИЕ:* в `config` секции можно задавать разные параметры конфигурации самого nginx.
@@ -350,6 +352,8 @@ ssl-session-cache-size: 50m
 ssl-session-timeout: 1h
 ssl-session-ticket-key: "Ayinjzn7b0Sr4DuXgItlEYExdGPVFqTKz5HWbxQWCneY71r272hbwS0uvgR20bgArOypH7biJEsPGrX2lL9OMN6wgApW4ZPjydQ7BLb/CXk="
 ssl-session-tickets: 'true'
+hsts: 'true'
+hsts-max-age: 15768000
 ```
 
 * `enable-ocsp` - включает ocsp stapling. Он работает немного не как родной в nginx, так как в ingress nginx
@@ -369,4 +373,39 @@ ssl session cache будет актуален только на одном pod'�
 openssl rand 80 | openssl enc -A -base64
 ```
 
-*TODO:* по-хорошему надо ещё выставить `ssl-dh-param` - для полноценного хорошего tls security.
+* `hsts` - включить Transport Security (будет с http перенаправлять всегда на https)
+* `hsts-max-age` - максимальное время действия hsts
+* `ssl-dh-param` - для хорошего полноценного tls security. Сделам по официальному [guide'у](https://kubernetes.github.io/ingress-nginx/examples/customization/ssl-dh-param/).
+
+Для начала создадим наш общий ключик с помощью команды:
+
+```
+openssl dhparam 4096 2> /dev/null | base64
+```
+
+Создаём `dhparam.yml` и вписываем туда наш output одной стройкой:
+
+```
+apiVersion: v1
+data:
+  dhparam.pem: "LS0tLS1CRUdJTiBESCBQQVJBTUVURVJ..."
+kind: Secret
+metadata:
+  name: dhparam
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+```
+
+Применяем:
+
+```
+kubectl apply -f dhparam.yml
+```
+
+И вписываем в наш configmap (в values при изначальной установке):
+
+```
+ssl-dh-param: "ingress-nginx/dhparam"
+```
