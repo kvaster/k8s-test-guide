@@ -1,4 +1,4 @@
-# K8S - nginx ingress.
+# K8S - ingress nginx.
 
 Для того, чтобы мы могли зайти на наши ресурсы из вне, нам надо настроить ingress сервис.
 В данном guide'е сделаем это на основе ingress-nginx. Настроим два тестовых эхо сервиса и автоматическое
@@ -152,7 +152,6 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 Вписываем в него всё то, что меняли в предыдущей секции и ещё чуть-чуть:
 
 ```
-namespace: ingress-nginx
 controller:
   kind: DaemonSet
   service:
@@ -163,7 +162,17 @@ controller:
     - 10.118.11.22
   publishService:
     enabled: false
+  config:
+    enable-ocsp: 'true'
+    ssl-session-cache-size: 50m
+    ssl-session-timeout: 1h
+    ssl-session-ticket-key: "Ayinjzn7b0Sr4DuXgItlEYExdGPVFqTKz5HWbxQWCneY71r272hbwS0uvgR20bgArOypH7biJEsPGrX2lL9OMN6wgApW4ZPjydQ7BLb/CXk="
+    ssl-session-tickets: 'true'
 ```
+
+*ВНИМАНИЕ:* в `config` секции можно задавать разные параметры конфигурации самого nginx.
+В частности `enable-ocsp` включить ocsp stapling. Параметры можно посмотреть [тут](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/).
+Немного больше про параметры в секции ниже.
 
 Генерируем yml файл и запускаем его:
 
@@ -330,3 +339,34 @@ controller:
 Cert-manager при установке зарегистрирует новый аккаунт. Если вы хотите использовать свой старый аккаунт, то для
 этого надо отключить создание нового и в ручном режиме создать секрет с вашим ключём:
 [читать тут](https://cert-manager.io/docs/configuration/acme/#reusing-an-acme-account).
+
+## Оптимизация nginx
+
+Ранее мы выставили некоторые параметры для nginx. В частности мы выставили оптимизации для SSL:
+
+```
+enable-ocsp: 'true'
+ssl-session-cache-size: 50m
+ssl-session-timeout: 1h
+ssl-session-ticket-key: "Ayinjzn7b0Sr4DuXgItlEYExdGPVFqTKz5HWbxQWCneY71r272hbwS0uvgR20bgArOypH7biJEsPGrX2lL9OMN6wgApW4ZPjydQ7BLb/CXk="
+ssl-session-tickets: 'true'
+```
+
+* `enable-ocsp` - включает ocsp stapling. Он работает немного не как родной в nginx, так как в ingress nginx
+работа с сертификатами реализована на lua api (чтобы не перезагружать nginx при обновлении сертификата), но
+параметр для ускорения работы tls - обязателен.
+
+* `ssl-session-cache-size` - размер кеша ssl сессий для одного инстанса ingress'а
+* `ssl-session-timeout` - время после которого мы будем точно делать полный tls handshake
+* `ssl-session-tickets` - в случае, если у нас запущен не один pod ingress'а (а это будет так), то
+ssl session cache будет актуален только на одном pod'е. Для того, чтобы можно было быстро начинать сессию
+в случае если запрос попадает на другой pod, надо использовать ssl tickets. При этом ticket должен шифроваться
+одним и тем же ключём.
+* `ssl-session-ticket-key` - base64 закодированный ключ для ticket'ов. Его можно сгенерировать следующим
+способом:
+
+```
+openssl rand 80 | openssl enc -A -base64
+```
+
+*TODO:* по-хорошему надо ещё выставить `ssl-dh-param` - для полноценного хорошего tls security.
