@@ -34,7 +34,7 @@
 ## После настройки тестового окружения
 
 - [Внешние сертификаты](certificates.md)
-- [NGINX ingress](nginx-ingress.md)
+- [Ingress NGINX](ingress-nginx.md)
 
 ## Тестовое окружение
 
