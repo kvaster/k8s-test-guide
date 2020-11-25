@@ -313,12 +313,10 @@ controller:
     enabled: false
 ```
 
-В ingress сервисе в tls секции надо убрать `secretName`, а в `hosts` можно повторить то же самое, что в `host` в `http` секции:
+В ingress сервисе в tls секции надо убрать `secretName`, а в `hosts` можно повторить то же самое, что в `host` в `http` секции (если надо SNI) или убрать вообще:
 
 ```
   tls:
-  - hosts:
-    - 'kube.mydomain.com'
 ```
 
 ## Небольшие замечание по acme (letsencrypt) сертификатам
