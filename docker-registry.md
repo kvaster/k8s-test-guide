@@ -85,6 +85,7 @@ metadata:
   namespace: docker-registry
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
   rules:
   - host: registry.kvaster.com
