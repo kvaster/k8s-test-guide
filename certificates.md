@@ -4,13 +4,24 @@
 
 ## Установка
 
+### Готовый манифест
+
 Установим его в наш кластер согласно официальному guide'у:
 
-`kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml`
+`kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml`
 
 можем проверить, что всё хорошо:
 
 `kubectl get pods -n cert-manager`
+
+### Helm
+
+```
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm template cert-manager jetstack/cert-manager --namespace cert-manager --version v1.1.0 --set installCRDs=true > cert-manager.yml
+kubectl apply -f cert-manager.yml
+```
 
 ## Настройка
 
