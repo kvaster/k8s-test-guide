@@ -51,7 +51,7 @@ OPTS="${OPTS} ${DSR}"
 FILE=cilium.yml
 
 if [ "$1" == "preflight" ]; then
-  OPTS="${OPTS} --set preflight.enabled=true --set agent=false --set --set operator.enabled=false"
+  OPTS="${OPTS} --set preflight.enabled=true --set agent=false --set operator.enabled=false"
   FILE=cilium-preflight.yml
 fi
 
