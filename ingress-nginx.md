@@ -164,12 +164,12 @@ controller:
     enabled: false
   config:
     enable-ocsp: 'true'
-    ssl-session-cache-size: 50m
-    ssl-session-timeout: 1h
+    ssl-session-cache-size: '50m'
+    ssl-session-timeout: '1h'
     ssl-session-ticket-key: "Ayinjzn7b0Sr4DuXgItlEYExdGPVFqTKz5HWbxQWCneY71r272hbwS0uvgR20bgArOypH7biJEsPGrX2lL9OMN6wgApW4ZPjydQ7BLb/CXk="
     ssl-session-tickets: 'true'
     hsts: 'true'
-    hsts-max-age: 15768000
+    hsts-max-age: '15768000'
 ```
 
 *ВНИМАНИЕ:* в `config` секции можно задавать разные параметры конфигурации самого nginx.
@@ -179,7 +179,7 @@ controller:
 Генерируем yml файл и запускаем его:
 
 ```
-helm template -n ingress-nginx ingress-nginx ingress-nginx/ingress-nginx --version 3.11.0 -f values.yml > ingress.yml
+helm template -n ingress-nginx ingress-nginx ingress-nginx/ingress-nginx --version 3.12.0 -f values.yml > ingress.yml
 kubectl create namespace ingress-nginx
 kubectl apply -n ingress-nginx -f ingress.yml
 ```
@@ -330,6 +330,8 @@ controller:
   tls:
 ```
 
+Так же в `extraArgs` можно добавить ещё один параметр: `enable-ssl-chain-completion: true`.
+
 ## Небольшие замечание по acme (letsencrypt) сертификатам
 
 Крайне рекомендую почитать информацию по acme [тут](https://cert-manager.io/docs/configuration/acme/).
@@ -348,12 +350,12 @@ Cert-manager при установке зарегистрирует новый �
 
 ```
 enable-ocsp: 'true'
-ssl-session-cache-size: 50m
-ssl-session-timeout: 1h
+ssl-session-cache-size: '50m'
+ssl-session-timeout: '1h'
 ssl-session-ticket-key: "Ayinjzn7b0Sr4DuXgItlEYExdGPVFqTKz5HWbxQWCneY71r272hbwS0uvgR20bgArOypH7biJEsPGrX2lL9OMN6wgApW4ZPjydQ7BLb/CXk="
 ssl-session-tickets: 'true'
 hsts: 'true'
-hsts-max-age: 15768000
+hsts-max-age: '15768000'
 ```
 
 * `enable-ocsp` - включает ocsp stapling. Он работает немного не как родной в nginx, так как в ingress nginx

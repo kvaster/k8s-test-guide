@@ -104,3 +104,19 @@ spec:
 Возможные параметры конфигурации смотрим [тут](https://docs.docker.com/registry/configuration/).
 
 TODO: описать как с ним работать
+
+## Insecure registry
+
+Если запускать registry локально, то далеко не всегда будет возможность поставить честный сертификат.
+Для того, чтобы k8s мог нормально пользоваться таким registry, надо отключить проверку сертификата для него.
+Для этого надо вписать на каждой ноде в конфиг `/etc/containerd/config.toml`:
+
+```
+version = 2
+
+[plugins."io.containerd.grpc.v1.cri".registry.configs."registry.mydomain.com"]
+   [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.mydomain.com".tls]
+      insecure_skip_verify = true
+```
+
+Конечно же поменять `registry.mydomain.com` на свой домен.
