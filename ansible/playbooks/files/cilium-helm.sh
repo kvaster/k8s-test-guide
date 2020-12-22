@@ -2,11 +2,11 @@
 
 API_SERVER_IP=10.118.12.100
 API_SERVER_PORT=6443
-CILIUM_VERSION=1.9.0
+CILIUM_VERSION=1.9.1
 CILIUM_IF=wan1
 TMP=cilium
 
-CILIUM_COMPAT_VERSION=1.8.4
+CILIUM_COMPAT_VERSION=1.8
 
 # no kube-proxy
 NO_KUBE_PROXY="
@@ -16,11 +16,8 @@ NO_KUBE_PROXY="
 --set kubeProxyReplacement=strict
 --set nativeRoutingCIDR=10.244.0.0/16
 --set masquerade=true
-"
-
-NO_BPF_MASQ="
---set bpf.masquerade=false
 --set devices=${CILIUM_IF}
+--set ipam.mode=kubernetes
 "
 
 # host reachable services
@@ -34,6 +31,7 @@ DIRECT_ROUTING="
 --set tunnel=disabled
 --set autoDirectNodeRoutes=true
 --set nodePort.directRoutingDevice=${CILIUM_IF}
+--set endpointRoutes.enabled=true
 "
 
 # dsr or not dsr
@@ -43,7 +41,6 @@ DSR="
 
 OPTS="--namespace kube-system --set global.tag=v${CILIUM_VERSION}"
 OPTS="${OPTS} ${NO_KUBE_PROXY}"
-OPTS="${OPTS} ${NO_BPF_MASQ}"
 OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${DIRECT_ROUTING}"
 OPTS="${OPTS} ${DSR}"
