@@ -16,7 +16,6 @@ NO_KUBE_PROXY="
 --set kubeProxyReplacement=strict
 --set nativeRoutingCIDR=10.244.0.0/16
 --set masquerade=true
---set devices=${CILIUM_IF}
 --set ipam.mode=kubernetes
 "
 
