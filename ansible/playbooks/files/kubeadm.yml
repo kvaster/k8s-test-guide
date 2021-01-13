@@ -52,4 +52,3 @@ controlPlaneEndpoint: "10.118.12.100:6443"
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 nodeStatusUpdateFrequency: 4s
-
