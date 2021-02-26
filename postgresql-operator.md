@@ -43,6 +43,24 @@ spec:
   teamId: "acid"
   postgresql:
     version: "13"
+    parameters:
+      max_connections: "16384"
+      # shared_buffers: "8GB"
+      # temp_buffers: "512MB"
+      # work_mem: "64MB"
+      # maintenance_work_mem: "1GB"
+      # max_stack_depth: "6MB"
+      # max_files_per_process: "32768"
+      # effective_io_concurrency: "2"
+      # fsync: "off"
+      # synchronous_commit: "off"
+      # full_page_writes: "off"
+      # max_wal_size: "12GB"
+      # effective_cache_size: "32GB"
+      # jit: "on"
+      # log_temp_files: "0"
+      # log_timezone: 'Europe/Minsk'
+      # timezone: 'Europe/Minsk'
   numberOfInstances: 3
   users:
     dbadmin:
@@ -78,8 +96,6 @@ psql -h ${PG_IP} -U dbadmin postgres
 ```
 kubectl delete postgresql acid-pg-main
 ```
-
-TODO: описать как делать fine-tune postgresql'я
 
 ## Хорошие статьи про этот оператор
 
