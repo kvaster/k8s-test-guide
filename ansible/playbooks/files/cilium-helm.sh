@@ -30,7 +30,7 @@ DIRECT_ROUTING="
 --set tunnel=disabled
 --set autoDirectNodeRoutes=true
 --set nodePort.directRoutingDevice=${CILIUM_IF}
---set endpointRoutes.enabled=true
+--set endpointRoutes.enabled=false
 "
 
 # dsr or not dsr
