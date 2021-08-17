@@ -67,4 +67,5 @@ sh kube-postjoin.sh
 
 ## Запуск тестовых сервисов
 
-TODO
+* [Сертификаты][certificates.md]
+* [Ingress][ingress-nginx.md]

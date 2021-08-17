@@ -2,8 +2,8 @@
 
 API_SERVER_IP=10.118.12.100
 API_SERVER_PORT=6443
-CILIUM_VERSION=1.9.1
-CILIUM_IF=wan1
+CILIUM_VERSION=1.9.5
+CILIUM_IF=wan0.4000
 TMP=cilium
 
 CILIUM_COMPAT_VERSION=1.8
@@ -17,7 +17,10 @@ NO_KUBE_PROXY="
 --set nativeRoutingCIDR=10.244.0.0/16
 --set masquerade=true
 --set ipam.mode=kubernetes
+--set bpf.masquerade=true
 "
+#--set loadBalancer.acceleration=native
+#--set devices=${CILIUM_IF}
 
 # host reachable services
 HOST_REACHABLE="
@@ -38,11 +41,21 @@ DSR="
 --set loadBalancer.mode=dsr
 "
 
+LOCAL="
+--set image.repository=registry.kvaster.com/cilium/cilium
+--set image.tag=latest
+--set image.pullPolicy=Always
+--set operator.image.repository=registry.kvaster.com/cilium/operator
+--set operator.image.tag=latest
+--set operator.image.pullPolicy=Always
+"
+
 OPTS="--namespace kube-system --set global.tag=v${CILIUM_VERSION}"
 OPTS="${OPTS} ${NO_KUBE_PROXY}"
 OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${DIRECT_ROUTING}"
 OPTS="${OPTS} ${DSR}"
+OPTS="${OPTS} ${LOCAL}"
 
 FILE=cilium.yml
 

@@ -21,34 +21,31 @@ nodeRegistration:
 apiServer:
   certSANs:
   - 127.0.0.1
-  timeoutForControlPlane: 4m0s
   extraArgs:
-    oidc-issuer-url: https://accounts.google.com
     oidc-client-id: xxx.apps.googleusercontent.com
-    oidc-username-claim: email
     oidc-groups-claim: groups
+    oidc-issuer-url: https://accounts.google.com
+    oidc-username-claim: email
+  timeoutForControlPlane: 4m0s
 apiVersion: kubeadm.k8s.io/v1beta2
 certificatesDir: /etc/kubernetes/pki
 clusterName: kubernetes
+controlPlaneEndpoint: 10.118.12.100:6443
 controllerManager:
   extraArgs:
-    node-monitor-period: 2s
     node-monitor-grace-period: 16s
+    node-monitor-period: 2s
     pod-eviction-timeout: 30s
+dns:
   type: CoreDNS
 etcd:
   local:
     dataDir: /var/lib/etcd
 imageRepository: k8s.gcr.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.19.2
+kubernetesVersion: v1.21.1
 networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16
   serviceSubnet: 10.225.100.0/24
 scheduler: {}
-controlPlaneEndpoint: "10.118.12.100:6443"
----
-apiVersion: kubelet.config.k8s.io/v1beta1
-kind: KubeletConfiguration
-nodeStatusUpdateFrequency: 4s
