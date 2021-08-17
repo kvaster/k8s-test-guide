@@ -67,8 +67,12 @@
     path: "{{ vm_root_abs }}/images"
     state: directory
 
+- name: make imgs dir no-cow
+  shell: "chattr +C {{ vm_root_abs }}/images"
+  ignore_errors: true
+
 - name: create imgs
-  shell: "qemu-img create -f qcow2 {{ vm_root_abs }}/images/{{ item }}.qcow2 10G"
+  shell: "qemu-img create -f raw {{ vm_root_abs }}/images/{{ item }}.img {{ disk_size }}"
   with_items: "{{ groups['k8s'] }}"
 
 - name: create vms

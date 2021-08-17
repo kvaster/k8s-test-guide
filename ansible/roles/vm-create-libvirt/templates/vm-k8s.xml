@@ -32,8 +32,8 @@
   </pm>
   <devices>
     <disk type="file" device="disk">
-      <driver name="qemu" type="qcow2"/>
-      <source file="{{ vm_root_abs | realpath }}/images/{{ item }}.qcow2"/>
+      <driver name="qemu" type="raw" cache="none" io="io_uring"/>
+      <source file="{{ vm_root_abs | realpath }}/images/{{ item }}.img"/>
       <target dev="sdb" bus="sata"/>
       <boot order="1"/>
     </disk>
