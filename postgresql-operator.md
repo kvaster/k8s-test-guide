@@ -4,8 +4,6 @@
 
 ## Устанавливаем оператор
 
-TODO: посмотреть как создавать оператор в отдельном namespace
-
 Оператор будем ставить с помощью helm'а. Для этого создадим наши кастомные `values.yml`:
 
 ```
@@ -20,13 +18,13 @@ configKubernetes:
 Оператор рекомендуется ставить в CRD режиме вместо ConfigMaps:
 
 ```
-helm install postgres-operator ./charts/postgres-operator -f ./charts/postgres-operator/values-crd.yaml -f values.yml
+helm upgrade --install --create-namespace --namespace postgres postgres-operator ./charts/postgres-operator -f ./charts/postgres-operator/values-crd.yaml -f values.yml
 ```
 
 Для визуализации кластеров можно поставить UI:
 
 ```
-helm install postgres-operator-ui ./charts/postgres-operator-ui
+helm upgrade --install --create-namespace --namespace postgres postgres-operator-ui ./charts/postgres-operator-ui
 ```
 
 Добавляем тестовый кластер:
