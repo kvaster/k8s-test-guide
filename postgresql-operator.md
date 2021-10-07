@@ -15,16 +15,22 @@ configKubernetes:
 #  resync_period: 10m
 ```
 
-Оператор рекомендуется ставить в CRD режиме вместо ConfigMaps:
+Установим helm repo:
 
 ```
-helm upgrade --install --create-namespace --namespace postgres postgres-operator ./charts/postgres-operator -f ./charts/postgres-operator/values-crd.yaml -f values.yml
+helm repo add postgres-operator https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+```
+
+Устанавливаем оператор (начиная с версии 1.7.0 чарта оператор ставится в режиме CRD по стандарту):
+
+```
+helm upgrade --install --create-namespace --namespace postgres postgres-operator postgres-operator/postgres-operator -f values.yml
 ```
 
 Для визуализации кластеров можно поставить UI:
 
 ```
-helm upgrade --install --create-namespace --namespace postgres postgres-operator-ui ./charts/postgres-operator-ui
+helm upgrade --install --create-namespace --namespace postgres postgres-operator-ui postgres-operator/postgres-operator-ui
 ```
 
 Добавляем тестовый кластер:
