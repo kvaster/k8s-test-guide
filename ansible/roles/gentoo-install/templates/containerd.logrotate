@@ -1,0 +1,13 @@
+# Default log rotation / compression keeps 7 days of logs.
+/var/log/containerd/*.log {
+	daily
+	rotate 7
+	dateext
+	copytruncate
+	delaycompress
+	compress
+	notifempty
+	extension gz
+	sharedscripts
+	missingok
+}

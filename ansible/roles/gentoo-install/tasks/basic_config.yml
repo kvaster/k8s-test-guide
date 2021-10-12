@@ -60,6 +60,11 @@
     src: ntp.conf
     dest: '{{ root }}/etc/ntp.conf'
 
+- name: Containerd logrotate
+  template:
+    src: containerd.logrotate
+    dest: '{{ root }}/etc/logrotate.d/containerd'
+
 - name: Grant sudo to wheel
   copy:
     content: |
