@@ -86,12 +86,12 @@
           # Additional routes for vswitch
           routes_wan1="
           ${routes_wan1}
-          10.118.11.0/24 dev wan1
+          {{ subnet_virt }}.0/24 dev wan1
           default dev wan1 table vswitch
           "
           rules_wan1="
           from all to 10.244.0.0/16 lookup main priority 200
-          from 10.118.11.0/24 table vswitch priority 201
+          from {{ subnet_virt }}.0/24 table vswitch priority 201
           "
 
     - name: resolve machine name to it's default ip

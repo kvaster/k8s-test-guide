@@ -2,6 +2,6 @@
   <name>k8s-2</name>
   <uuid>e5574e51-b5f4-4338-a0b1-7fa6e39c93d6</uuid>
   <forward mode="nat"/>
-  <ip address="10.118.13.1" netmask="255.255.255.0"/>
-  <route address="10.118.11.0" prefix="24" gateway="10.118.13.1"/>
+  <ip address="{{ subnet_ext }}.1" netmask="255.255.255.0"/>
+  <route address="{{ subnet_virt }}.0" prefix="24" gateway="{{ subnet_ext }}.1"/>
 </network>

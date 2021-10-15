@@ -2,10 +2,10 @@
   <name>k8s-1</name>
   <uuid>fd6b7248-3963-48d3-a4ee-53711dd8613f</uuid>
   <forward mode="nat"/>
-  <ip address="10.118.10.1" netmask="255.255.255.0">
+  <ip address="{{ subnet_wan }}.1" netmask="255.255.255.0">
     <tftp root="{{ vm_root_abs | realpath }}/tftp"/>
     <dhcp>
-      <range start="10.118.10.128" end="10.118.10.254"/>
+      <range start="{{ subnet_wan }}.128" end="{{ subnet_wan }}.254"/>
 {% for host in groups['k8s'] %}
       {% set iface=hostvars[host]['if_list'] | selectattr('name', 'equalto', 'wan0') | first %}
       <host mac="{{ iface['mac'] }}" ip="{{ iface['ipv4']['addr'] }}"/>

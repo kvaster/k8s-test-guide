@@ -24,10 +24,22 @@ users:
   - name: "{{ ansible_local_user }}"
     ssh_key: "{{ lookup('file', ssh_key_location) }}"
 
+subnet: 10.118
+subnet_wan: "{{ subnet }}.10"
+subnet_virt: "{{ subnet }}.11"
+subnet_lan: "{{ subnet }}.12"
+subnet_ext: "{{ subnet }}.13"
+
+mac_prefix: 52:54:00:12
+mac_prefix_wan: "{{ mac_prefix }}:34"
+mac_prefix_lan: "{{ mac_prefix }}:35"
+# this prefix is used only for vbox setup
+mac_prefix_inst: "{{ mac_prefix }}:33"
+
 virt_ips:
-  - 10.118.11.20
-  - 10.118.11.21
-  - 10.118.11.22
+  - "{{ subnet_virt }}.20"
+  - "{{ subnet_virt }}.21"
+  - "{{ subnet_virt }}.22"
 
 virt_ips_per_node: 3
 vrrp_pass: 675bi5e5712j7
@@ -35,31 +47,42 @@ vrrp_pass: 675bi5e5712j7
 if_list_libvirt:
   - name: wan0
     ipv4:
-      addr: "10.118.10.{{ ip_short }}"
+      addr: "{{ subnet_wan }}.{{ ip_short }}"
       mask: 24
-      gw: 10.118.10.1
-    mac: '52:54:00:12:34:{{ mac_short }}'
+      gw: "{{ subnet_wan }}.1"
+    mac: '{{ mac_prefix_wan }}:{{ mac_short }}'
   - name: wan1
     ipv4:
-      addr: "10.118.12.{{ ip_short }}"
+      addr: "{{ subnet_lan }}.{{ ip_short }}"
       mask: 24
-    mac: '52:54:00:12:35:{{ mac_short }}'
+    mac: '{{ mac_prefix_lan }}:{{ mac_short }}'
 
 if_list_vbox:
   - name: wan0
     ipv4:
-      addr: "10.118.10.{{ ip_short }}"
+      addr: "{{ subnet_wan }}.{{ ip_short }}"
       mask: 24
-      gw: 10.118.10.1
-    mac: '52:54:00:12:34:{{ mac_short }}'
+      gw: "{{ subnet_wan }}.1"
+    mac: '{{ mac_prefix_wan }}:{{ mac_short }}'
   - name: wan1
     ipv4:
-      addr: "10.118.12.{{ ip_short }}"
+      addr: "{{ subnet_lan }}.{{ ip_short }}"
       mask: 24
-    mac: '52:54:00:12:35:{{ mac_short }}'
+    mac: '{{ mac_prefix_lan }}:{{ mac_short }}'
   - name: wan2
     ipv4:
       dhcp: true
-    mac: '52:54:00:12:33:{{ mac_short }}'
+    mac: '{{ mac_prefix_inst }}:{{ mac_short }}'
 
 if_list: "{{ if_list_vbox if vm_type == 'vbox' else if_list_libvirt }}"
+
+###### host template
+
+ansible_host: "{{ subnet_wan }}.{{ ip_short }}"
+
+disks:
+- name: sda
+fs_type: btrfs
+btrfs_profile: single
+arch: generic
+datacenter: qemu

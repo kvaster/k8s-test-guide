@@ -1,14 +1,5 @@
 mac_short: 58
 ip_short: 22
 
-ansible_host: "10.118.10.{{ ip_short }}"
-
-disks:
-- name: sda
-fs_type: btrfs
-btrfs_profile: single
-arch: generic
-datacenter: qemu
-
 balancer: true
 control: true
