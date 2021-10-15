@@ -78,8 +78,6 @@ if_list: "{{ if_list_vbox if vm_type == 'vbox' else if_list_libvirt }}"
 
 ###### host template
 
-ansible_host: "{{ subnet_wan }}.{{ ip_short }}"
-
 disks:
 - name: sda
 fs_type: btrfs

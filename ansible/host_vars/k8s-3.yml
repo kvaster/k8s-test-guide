@@ -1,5 +1,7 @@
 mac_short: 58
 ip_short: 22
 
+ansible_host: "{{ subnet_wan }}.{{ ip_short }}"
+
 balancer: true
 control: true
