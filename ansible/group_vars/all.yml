@@ -51,7 +51,7 @@ if_list_libvirt:
       mask: 24
       gw: "{{ subnet_wan }}.1"
     mac: '{{ mac_prefix_wan }}:{{ mac_short }}'
-  - name: wan1
+  - name: wan0.4000
     ipv4:
       addr: "{{ subnet_lan }}.{{ ip_short }}"
       mask: 24

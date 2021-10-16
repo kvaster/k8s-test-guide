@@ -84,12 +84,13 @@
         path: /etc/conf.d/net
         block: |
           # Additional routes for vswitch
-          routes_wan1="
-          ${routes_wan1}
-          {{ subnet_virt }}.0/24 dev wan1
-          default dev wan1 table vswitch
+          {%- set iface_name = if_list[1].name | replace('.', '_') %}
+          routes_{{ iface_name }}="
+          ${routes_{{ iface_name }}}
+          {{ subnet_virt }}.0/24 dev {{ iface_name }}
+          default dev {{ iface_name }} table vswitch
           "
-          rules_wan1="
+          rules_{{ iface_name }}="
           from all to 10.244.0.0/16 lookup main priority 200
           from {{ subnet_virt }}.0/24 table vswitch priority 201
           "

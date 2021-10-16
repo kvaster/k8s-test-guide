@@ -37,6 +37,11 @@
           append initrd=boot/gentoo.igz
       MENU LABEL gentoo
 
+- name: create net hooks
+  template:
+    src: network-hook.sh
+    dest: /etc/libvirt/hooks/network.d/k8s
+
 - name: create net
   virt_net:
     command: define
@@ -44,7 +49,6 @@
     xml: "{{ lookup('template', 'templates/net-' + item + '.xml') }}"
   loop:
     - k8s-1
-    - k8s-2
 
 - name: start net
   virt_net:
@@ -52,7 +56,6 @@
     state: active
   loop:
     - k8s-1
-    - k8s-2
 
 - name: autostart net
   virt_net:
@@ -60,7 +63,6 @@
     autostart: yes
   loop:
     - k8s-1
-    - k8s-2
 
 - name: create imgs dir
   file:

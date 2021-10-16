@@ -78,19 +78,12 @@
       <address type="pci" domain="0x0000" bus="0x03" slot="0x00" function="0x0"/>
     </controller>
     <interface type="network">
-      <mac address="{{ (iflist | selectattr('name', 'equalto', 'wan0') | first)['mac'] }}"/>
+      <mac address="{{ iflist[0].mac }}"/>
       <source network="k8s-1"/>
       <model type="virtio"/>
       <driver name="vhost" queues="6"/>
       <boot order="2"/>
       <address type="pci" domain="0x0000" bus="0x01" slot="0x00" function="0x0"/>
-    </interface>
-    <interface type="network">
-      <mac address="{{ (iflist | selectattr('name', 'equalto', 'wan1') | first)['mac'] }}"/>
-      <source network="k8s-2"/>
-      <model type="virtio"/>
-      <driver name="vhost" queues="6"/>
-      <address type="pci" domain="0x0000" bus="0x06" slot="0x00" function="0x0"/>
     </interface>
     <serial type="pty">
       <target type="isa-serial" port="0">
