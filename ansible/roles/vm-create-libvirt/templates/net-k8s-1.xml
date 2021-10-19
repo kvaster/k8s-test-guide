@@ -1,7 +1,7 @@
 <network>
   <name>k8s-1</name>
   <uuid>fd6b7248-3963-48d3-a4ee-53711dd8613f</uuid>
-  <forward mode="nat"/>
+  <forward mode="{{ network_mode }}"/>
   <ip address="{{ subnet_wan }}.1" netmask="255.255.255.0">
     <tftp root="{{ vm_root_abs | realpath }}/tftp"/>
     <dhcp>

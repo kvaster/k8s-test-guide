@@ -1,7 +1,6 @@
 ---
 - hosts: localhost
   connection: local
-  vars:
-    ansible_become: false
+  become: false
   tasks:
     - include_tasks: "vm-destroy-{{ vm_type }}.yml"

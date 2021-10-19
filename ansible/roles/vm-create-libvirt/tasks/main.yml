@@ -37,10 +37,22 @@
           append initrd=boot/gentoo.igz
       MENU LABEL gentoo
 
+- name: create net hookds dir
+  file:
+    path: "/etc/libvirt/hooks/network.d"
+    state: directory
+  become: yes
+
 - name: create net hooks
   template:
     src: network-hook.sh
     dest: /etc/libvirt/hooks/network.d/k8s
+    mode: 0755
+  become: yes
+
+- name: reload hooks
+  shell: "kill -HUP $(cat /run/libvirtd.pid)"
+  become: true
 
 - name: create net
   virt_net:

@@ -1,8 +1,7 @@
 ---
 - hosts: localhost
   connection: local
-  vars:
-    ansible_become: false
+  become: false
   tasks:
     - include_role:
         name: "vm-create-{{ vm_type }}"

@@ -22,6 +22,16 @@
     - k8s-2
   ignore_errors: true
 
+- name: remove hooks
+  become: true
+  file:
+    path: /etc/libvirt/hooks/network.d/k8s
+    state: absent
+
+- name: reload hooks
+  shell: "kill -HUP $(cat /run/libvirtd.pid)"
+  become: true
+
 - debug:
     msg:
       - "Please note that images and some other cached files may be not removed."

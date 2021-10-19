@@ -13,12 +13,18 @@ repo_domain: mydomain.com
 vm_root: ../tmp
 vm_root_abs: "{{ vm_root | realpath }}"
 ssh_key_location: '~/.ssh/id_ed25519.pub'
+#extra_ssh_key: ""
+
+# default network mode for libvirt
+# 'nat' is always good for local desktop deployments, 'route' may be more helpfull for server deployments
+network_mode: nat
 
 # libvirt or vbox
 vm_type: libvirt
 
 mem_mb: 3072
 disk_size: 10G
+cores: "{{ ansible_processor_vcpus }}"
 
 users:
   - name: "{{ ansible_local_user }}"
@@ -30,7 +36,7 @@ subnet_virt: "{{ subnet }}.11"
 subnet_lan: "{{ subnet }}.12"
 subnet_ext: "{{ subnet }}.13"
 
-mac_prefix: 52:54:00:12
+mac_prefix: "52:54:00:12"
 mac_prefix_wan: "{{ mac_prefix }}:34"
 mac_prefix_lan: "{{ mac_prefix }}:35"
 # this prefix is used only for vbox setup
@@ -44,6 +50,8 @@ virt_ips:
 virt_ips_per_node: 3
 vrrp_pass: 675bi5e5712j7
 
+vlan_tag: "4000"
+
 if_list_libvirt:
   - name: wan0
     ipv4:
@@ -51,7 +59,7 @@ if_list_libvirt:
       mask: 24
       gw: "{{ subnet_wan }}.1"
     mac: '{{ mac_prefix_wan }}:{{ mac_short }}'
-  - name: wan0.4000
+  - name: "wan0.{{ vlan_tag }}"
     ipv4:
       addr: "{{ subnet_lan }}.{{ ip_short }}"
       mask: 24

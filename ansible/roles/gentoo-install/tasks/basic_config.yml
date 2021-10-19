@@ -60,11 +60,6 @@
     src: ntp.conf
     dest: '{{ root }}/etc/ntp.conf'
 
-- name: Containerd logrotate
-  template:
-    src: containerd.logrotate
-    dest: '{{ root }}/etc/logrotate.d/containerd'
-
 - name: Grant sudo to wheel
   copy:
     content: |
@@ -88,6 +83,9 @@
     dest: '{{ root }}/home/{{ item.name }}/.ssh/authorized_keys'
     content: |
       {{ item.ssh_key }}
+      {% if extra_ssh_key is defined %}
+      {{ extra_ssh_key }}
+      {% endif %}
     mode: 0600
   loop: '{{ users }}'
   loop_control:
