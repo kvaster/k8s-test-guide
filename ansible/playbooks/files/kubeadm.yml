@@ -43,7 +43,7 @@ etcd:
     dataDir: /var/lib/etcd
 imageRepository: k8s.gcr.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.21.1
+kubernetesVersion: v1.21.5
 networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16

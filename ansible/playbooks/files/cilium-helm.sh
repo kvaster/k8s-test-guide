@@ -18,7 +18,6 @@ NO_KUBE_PROXY="
 --set masquerade=true
 --set ipam.mode=kubernetes
 --set bpf.masquerade=true
---set hostFirewall=true
 --set l7Proxy=false
 --set encryption.enabled=true
 --set encryption.type=wireguard
@@ -36,7 +35,6 @@ DIRECT_ROUTING="
 --set tunnel=disabled
 --set autoDirectNodeRoutes=true
 --set nodePort.directRoutingDevice=${CILIUM_IF}
---set endpointRoutes.enabled=false
 "
 
 # dsr or not dsr
