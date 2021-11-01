@@ -89,6 +89,8 @@
           routes_{{ iface_name }}="
           ${routes_{{ iface_name }}}
           {{ subnet_virt }}.0/24 dev {{ iface.name }}
+          {{ subnet_virt }}.0/24 dev {{ iface.name }} table vswitch
+          {{ subnet_lan }}.0/24 dev {{ iface.name }} table vswitch
           {% if vm_type == 'vbox' %}
           default dev {{ iface.name }} table vswitch
           {% else %}
