@@ -176,16 +176,10 @@ controller:
 В частности `enable-ocsp` включить ocsp stapling. Параметры можно посмотреть [тут](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/).
 Немного больше про параметры в секции ниже.
 
-Устанавливаем с помощью helm:
+Устанавливаем (обновляем) с помощью helm:
 
 ```
-helm install --create-namespace -n ingress-nginx ingress-nginx ingress-nginx/ingress-nginx --version 3.34.0 -f values.yml
-```
-
-Для обновления:
-
-```
-helm upgrade -n ingress-nginx ingress-nginx ingress-nginx/ingress-nginx --version 3.34.0 -f values.yml
+helm upgrade --install --create-namespace -n ingress-nginx ingress-nginx ingress-nginx/ingress-nginx --version 3.34.0 -f values.yml
 ```
 
 ## Настройка сервисов для работы с TLS
