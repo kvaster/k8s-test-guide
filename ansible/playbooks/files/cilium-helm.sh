@@ -17,12 +17,26 @@ NO_KUBE_PROXY="
 --set nativeRoutingCIDR=10.244.0.0/16
 --set masquerade=true
 --set ipam.mode=kubernetes
---set bpf.masquerade=true
+"
+
+# we can't use direct routing for now unfortunatelly, cause:
+# - VLAN fix will be available only in cilium 1.11
+# - bpf masquerade chooses wrong IP address for masquerading on wan0.4000 interface
+#   due to external virtual IPs
+# But '--set devices' may be ommited with cilium 1.11 due to VLAN fix
+BPF_MASQUERADE="
+--set bpf.masquerade=false
+--set devices=${CILIUM_IF}
+"
+
+# wireguard requires to disable L7proxy for now
+# also it can't be used with eBPF host routing,
+# but eBPF host routing also requires bpf masquerading
+WIREGUARD="
 --set l7Proxy=false
 --set encryption.enabled=true
 --set encryption.type=wireguard
 "
-#--set devices=${CILIUM_IF}
 
 # host reachable services
 HOST_REACHABLE="
@@ -55,6 +69,8 @@ LOCAL="
 
 OPTS="--namespace kube-system --set global.tag=v${CILIUM_VERSION}"
 OPTS="${OPTS} ${NO_KUBE_PROXY}"
+OPTS="${OPTS} ${BPF_MASQUERADE}"
+OPTS="${OPTS} ${WIREGUARD}"
 OPTS="${OPTS} ${HOST_REACHABLE}"
 OPTS="${OPTS} ${DIRECT_ROUTING}"
 OPTS="${OPTS} ${DSR}"
