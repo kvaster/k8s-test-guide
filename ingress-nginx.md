@@ -69,72 +69,10 @@ spec:
 
 ## Установка самого ingress-nginx
 
-Данный ingress можно устанавливать двумя способами:
+Данный ingress можно устанавливать ~~двумя способами~~:
 
-* С помощью готового yml файла, но в этом случае его надо будет руками редактировать.
+* ~~С помощью готового yml файла, но в этом случае его надо будет руками редактировать.~~
 * С помощью helm'а.
-
-### Установка с помощью готового yml файла.
-
-Разработчики подготавливают разные варианты установки. Воспользуемся вариантом для baremetal'а:
-
-```
-wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml`
-```
-
-Найдём секцию сервиса в этом файле. Поиск делаем по тегу `controller-service.yaml`.
-В секции spec поменяем `NodePort` на `ClusterIP`. Плюс мы добавляем секцию `externalIPs` с помощью которой как раз и
-выставляем наружу наш ingress. В `externalIPs` мы должны перечислить все внешние ip, которые мы используем.
-По итогу эта секция будет выглядеть примерно так:
-
-```
-# Source: ingress-nginx/templates/controller-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    helm.sh/chart: ingress-nginx-2.10.0
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/version: 0.33.0
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: controller
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
-spec:
-  type: ClusterIP
-  ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: http
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: https
-  externalIPs:
-  - 10.118.11.20
-  - 10.118.11.21
-  - 10.118.11.22
-  selector:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/component: controller
----
-```
-
-Также поменяем настройки deploy'я для нас. Вместо deployment сделаем запуск на всех вершинах - в виду Daemonset'а.
-Делаем поиск секции по тегу `controller-deployment.yaml`. В нём меняем `kind` с `Deployment` на `Daemonset`.
-Начало секции будет выглядеть примерно так:
-
-```
-# Source: ingress-nginx/templates/controller-deployment.yaml
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  labels:
-    helm.sh/chart: ingress-nginx-3.10.1
-```
 
 ### Установка с помощью helm chart'а
 
@@ -179,7 +117,7 @@ controller:
 Устанавливаем (обновляем) с помощью helm:
 
 ```
-helm upgrade --install --create-namespace -n ingress-nginx ingress-nginx ingress-nginx/ingress-nginx --version 3.34.0 -f values.yml
+helm upgrade --install --create-namespace -n ingress-nginx ingress-nginx ingress-nginx/ingress-nginx --version 4.0.13 -f values.yml
 ```
 
 ## Настройка сервисов для работы с TLS
