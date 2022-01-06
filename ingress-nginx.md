@@ -125,7 +125,7 @@ helm upgrade --install --create-namespace -n ingress-nginx ingress-nginx ingress
 А теперь настроим ingress сервис и укажем наши 2 эхо сервиса:
 
 ```
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: example-ingress
@@ -140,13 +140,17 @@ spec:
         - path: /apple
           pathType: ImplementationSpecific
           backend:
-            serviceName: apple-service
-            servicePort: 5678
+            service:
+              name: apple-service
+              port:
+                number: 5678
         - path: /banana
           pathType: ImplementationSpecific
           backend:
-            serviceName: banana-service
-            servicePort: 5678
+            service:
+              name: banana-service
+              port:
+                number: 5678
   tls:
   - hosts:
     - 'mydomain.com'
@@ -187,16 +191,16 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kvaster-cert
+  name: mydomain-cert
   annotations:
     #cert-manager.io/issue-temporary-certificate: true
 spec:
   # Secret names are always required.
-  secretName: kvaster-cert
+  secretName: mydomain-cert
   renewBefore: 360h # 15d
   dnsNames:
-  - kvaster.com
-  - "*.kvaster.com"
+  - mydomain.com
+  - "*.mydomain.com"
   privateKey:
     rotationPolicy: Always
   issuerRef:
