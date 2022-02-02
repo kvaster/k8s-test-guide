@@ -101,6 +101,7 @@
           rules_{{ iface_name }}="
           from all to 10.244.0.0/16 lookup main priority 200
           from {{ subnet_virt }}.0/24 table vswitch priority 201
+          "
 
           # we should accept local source in order to use direct server return mode in cilium
           preup() {
@@ -108,7 +109,6 @@
               echo 1 > /proc/sys/net/ipv4/conf/${IFACE}/accept_local
             fi
           }
-          "
 
     - name: resolve machine name to it's default ip
       blockinfile:
