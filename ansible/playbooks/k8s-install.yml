@@ -4,8 +4,8 @@
     - name: install packages
       portage:
         package:
-          - app-emulation/containerd
-          - app-emulation/cri-tools
+          - app-containers/containerd
+          - app-containers/cri-tools
           - net-firewall/conntrack-tools
           - net-firewall/ebtables
           - net-misc/socat
