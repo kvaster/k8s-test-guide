@@ -14,5 +14,8 @@
 - name: k8s helpers
   import_playbook: k8s-helpers.yml
 
+- name: k8s patches
+  import_playbook: k8s-patches.yml
+
 - name: final reboot
   import_playbook: vm-reboot.yml

@@ -1,4 +1,5 @@
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
 bootstrapTokens:
 - groups:
   - system:bootstrappers:kubeadm:default-node-token
@@ -7,17 +8,20 @@ bootstrapTokens:
   usages:
   - signing
   - authentication
-kind: InitConfiguration
 localAPIEndpoint:
-  advertiseAddress: 10.118.12.20
+  advertiseAddress: "{{ subnet_lan }}.{{ ip_short }}"
   bindPort: 6443
 nodeRegistration:
   criSocket: /run/containerd/containerd.sock
   name: k8s-1
   taints:
   - effect: NoSchedule
-    key: node-role.kubernetes.io/master
+    key: node-role.kubernetes.io/control-plane
+patches:
+  directory: /etc/kubernetes/patches
 ---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
 apiServer:
   certSANs:
   - 127.0.0.1
@@ -27,23 +31,19 @@ apiServer:
     oidc-issuer-url: https://accounts.google.com
     oidc-username-claim: email
   timeoutForControlPlane: 4m0s
-apiVersion: kubeadm.k8s.io/v1beta2
 certificatesDir: /etc/kubernetes/pki
 clusterName: kubernetes
-controlPlaneEndpoint: 10.118.12.100:6443
+controlPlaneEndpoint: "{{ subnet_lan }}.100:6443"
 controllerManager:
   extraArgs:
     node-monitor-grace-period: 16s
     node-monitor-period: 2s
     pod-eviction-timeout: 30s
-dns:
-  type: CoreDNS
 etcd:
   local:
     dataDir: /var/lib/etcd
 imageRepository: k8s.gcr.io
-kind: ClusterConfiguration
-kubernetesVersion: v1.21.5
+kubernetesVersion: v1.23.1
 networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16
@@ -53,4 +53,3 @@ scheduler: {}
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
 cgroupDriver: cgroupfs
-

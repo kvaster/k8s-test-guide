@@ -1,0 +1,9 @@
+- op: add
+  path: /spec/containers/0/command/-
+  value: "--bind-address={{ subnet_lan }}.{{ ip_short }}"
+- op: replace
+  path: /spec/containers/0/livenessProbe/httpGet/host
+  value: "{{ subnet_lan }}.{{ ip_short }}"
+- op: replace
+  path: /spec/containers/0/startupProbe/httpGet/host
+  value: "{{ subnet_lan }}.{{ ip_short }}"

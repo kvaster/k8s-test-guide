@@ -34,7 +34,7 @@ sh kube-setup.sh
 
 ```shell script
 cd k8s
-<kubectl join variant for control plane> --apiserver-advertise-address 10.118.12.XX
+<kubectl join variant for control plane> --patches /etc/kubernetes/patches --apiserver-advertise-address 10.118.12.XX
 sh kube-postjoin.sh
 ```
 

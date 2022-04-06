@@ -3,31 +3,40 @@
   vars:
     ansible_become: false
   tasks:
-    - name: helpers folder
+    - name: kubeadm helper folder
       file:
-        path: "~/k8s"
+        path: "~/k8s/kubeadm"
         state: directory
 
-    - copy:
-        src: kube-setup.sh
-        dest: "~/k8s/"
+    - name: kubeadm master helpers
+      template:
+        src: "helpers/{{ item }}"
+        dest: "~/k8s/kubeadm/{{ item }}"
+      with_items:
+        - kube-setup.sh
+        - kube-reset.sh
+        - kubeadm.yml
       when: "inventory_hostname == 'k8s-1'"
 
-    - copy:
-        src: kubeadm.yml
-        dest: "~/k8s/"
-      when: "inventory_hostname == 'k8s-1'"
-
-    - copy:
-        src: kube-reset.sh
-        dest: "~/k8s/"
-
-    - copy:
-        src: kube-postjoin.sh
-        dest: "~/k8s/"
+    - name: kubeadm other helpers
+      template:
+        src: "helpers/{{ item }}"
+        dest: "~/k8s/kubeadm/{{ item }}"
+      with_items:
+        - kube-postjoin.sh
+        - kube-reset.sh
       when: "inventory_hostname != 'k8s-1'"
 
-    - copy:
-        src: cilium-helm.sh
-        dest: "~/k8s/"
+    - name: cilium helper folder
+      file:
+        path: "~/k8s/cilium"
+        state: directory
+      when: "inventory_hostname == 'k8s-1'"
+
+    - name: cililum helper
+      template:
+        src: "helpers/{{ item }}"
+        dest: "~/k8s/cilium/{{ item }}"
+      with_items:
+        - cilium-helm.sh
       when: "inventory_hostname == 'k8s-1'"

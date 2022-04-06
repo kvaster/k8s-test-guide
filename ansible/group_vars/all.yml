@@ -84,10 +84,18 @@ if_list_vbox:
 
 if_list: "{{ if_list_vbox if vm_type == 'vbox' else if_list_libvirt }}"
 
+###### disk options
+
+disk_bus: "{{ 'sata' if vm_type == 'vbox' else 'virtio' }}"
+disk_name: "{{ 'sda' if disk_bus == 'sata' else 'vda' }}"
+disk_io: io_uring
+#disk_io: threads
+
 ###### host template
 
+
 disks:
-- name: sda
+- name: "{{ disk_name }}"
 fs_type: btrfs
 btrfs_profile: single
 arch: generic

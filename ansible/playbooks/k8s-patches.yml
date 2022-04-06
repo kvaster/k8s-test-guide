@@ -1,0 +1,20 @@
+---
+- hosts: k8s
+  vars:
+    ansible_become: true
+  tasks:
+    - name: k8s patches folder
+      file:
+        path: "/etc/kubernetes/patches"
+        state: directory
+      when: "control"
+
+    - name: k8s patches
+      template:
+        src: "helpers/patches/{{ item }}"
+        dest: "/etc/kubernetes/patches/{{ item }}"
+      with_items:
+        - etcd+json.yaml
+        - kube-controller-manager+json.yaml
+        - kube-scheduler+json.yaml
+      when: "control"
