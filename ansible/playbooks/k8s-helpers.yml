@@ -15,7 +15,7 @@
       with_items:
         - kube-setup.sh
         - kube-reset.sh
-        - kubeadm.yml
+        - kubeadm.yaml
       when: "inventory_hostname == 'k8s-1'"
 
     - name: kubeadm other helpers
