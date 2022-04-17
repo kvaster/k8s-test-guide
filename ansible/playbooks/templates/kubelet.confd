@@ -7,11 +7,6 @@ KUBEADM_ENV="/var/lib/kubelet/kubeadm-flags.env"
 KUBELET_KUBECONFIG_ARGS="--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
 KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
 
-# kubernetes new feature is buggy and especially is not compatible with btrfs
-# we should remove this as soon as this bug will be fixed
-# https://github.com/kubernetes/kubernetes/issues/94335
-# https://github.com/ubuntu/microk8s/issues/1570
-# https://github.com/ubuntu/microk8s/issues/1587
-KUBELET_EXTRA_ARGS="--feature-gates='LocalStorageCapacityIsolation=false'"
+#KUBELET_EXTRA_ARGS="--feature-gates='LocalStorageCapacityIsolation=false'"
 
 command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEADM_ARGS} ${KUBELET_EXTRA_ARGS}"
