@@ -36,8 +36,6 @@ clusterName: kubernetes
 controlPlaneEndpoint: "{{ subnet_lan }}.100:6443"
 controllerManager:
   extraArgs:
-    node-startup-grace-period: 5m0s
-    node-monitor-grace-period: 2m0s
 etcd:
   local:
     dataDir: /var/lib/etcd
