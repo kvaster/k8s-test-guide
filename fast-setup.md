@@ -65,6 +65,13 @@ sh kube-postjoin.sh
 
 ВАЖНО: worker можно bootstrap'ить только после того, как мы запустим сеть (см. предыдущий шаг)
 
+## Private registry
+
+Для того, чтобы не надо было добавлять постоянно credentials для private registry, можно из глобально
+добавить на каждой ноде в kubelet:
+
+`/var/lib/kubelet/config.json`
+
 ## Запуск тестовых сервисов
 
 * [Сертификаты][certificates.md]
