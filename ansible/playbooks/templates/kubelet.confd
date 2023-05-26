@@ -10,3 +10,18 @@ KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
 #KUBELET_EXTRA_ARGS="--feature-gates='LocalStorageCapacityIsolation=false'"
 
 command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEADM_ARGS} ${KUBELET_EXTRA_ARGS}"
+
+check_containerd() {
+  crictl version
+  rc=$?
+  [ $rc -ne 0 ]
+}
+
+start_pre() {
+  echo "waiting for containerd"
+  while check_containerd; do
+    echo "waiting..."
+    sleep 1
+  done
+}
+
