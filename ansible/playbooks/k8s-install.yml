@@ -117,10 +117,15 @@
           # Default machine ip
           {{ if_list[1].ipv4.addr }} {{ inventory_hostname }}
 
-    - name: Containerd logrotate
+    - name: containerd logrotate
       template:
         src: containerd.logrotate
         dest: '/etc/logrotate.d/containerd'
+
+    - name: containerd config
+      template:
+        src: containerd.toml
+        dest: '/etc/containerd/config.toml'
 
     - name: autostart containred
       service:
