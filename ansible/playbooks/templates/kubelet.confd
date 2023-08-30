@@ -1,15 +1,12 @@
 ###
 # Kubernetes Kubelet (worker) config
 
-KUBEADM_ENV="/var/lib/kubelet/kubeadm-flags.env"
-[[ -f "${KUBEADM_ENV}" ]] && . "${KUBEADM_ENV}"
-
 KUBELET_KUBECONFIG_ARGS="--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
 KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
 
 #KUBELET_EXTRA_ARGS="--feature-gates='LocalStorageCapacityIsolation=false'"
 
-command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEADM_ARGS} ${KUBELET_EXTRA_ARGS}"
+command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_EXTRA_ARGS}"
 
 check_containerd() {
   crictl version
