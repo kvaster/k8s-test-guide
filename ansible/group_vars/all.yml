@@ -7,7 +7,7 @@ ansible_ssh_common_args: -o UserKnownHostsFile=/dev/null -o StrictHostKeyCheckin
 # Below is the result for `openssl passwd -1 'superpass'`
 root_password: "$1$ertRT1Bx$fGF3AQh11aG4XAgsO1AZN."
 
-timezone: Europe/Minsk
+timezone: UTC
 
 repo_domain: mydomain.com
 vm_root: ../tmp
