@@ -23,8 +23,6 @@
 
 - name: Unpack system
   shell: 'cat {{ root }}/stage4.tar.zst | zstd -d | tar -C {{ root }} -xp'
-  args:
-    warn: false
 
 - name: Remove tarball
   file:

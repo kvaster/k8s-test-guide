@@ -76,14 +76,13 @@ rm -rf iso-mount
 ```
 mkisofs -J -R -l -V "Gentoo Linux - AMD64" \
   -o gentoo-minimal-install-insecure.iso \
-  -b isolinux/isolinux.bin \
-  -c isolinux/boot.cat \
+  -b boot/grub/i386-pc/eltorito.img \
   -no-emul-boot \
   -boot-load-size 4 \
   -boot-info-table \
   -eltorito-alt-boot \
-  -b gentoo.efimg \
-  -c boot.cat \
+  -b efi.img \
+  -c boot.catalog \
   -no-emul-boot \
   -z \
   iso-new/
@@ -110,7 +109,7 @@ https://lathama.net/PXE_boot_with_Libvirt - в качестве boot'а буде
 Подготовим теперь папку, в которой лежат файлы для tftp. Скопируем необходимый минимум из пакета syslinux:
 
 ```
-cp /usr/lib/syslinux/{pxelinux.0,ldlinux.c32} tftp/
+cp /usr/share/syslinux/{pxelinux.0,ldlinux.c32} tftp/
 ```
 
 Создадим конфигурацию запуска в `tftp/pxelinux.cfg/default`:

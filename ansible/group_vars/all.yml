@@ -97,6 +97,7 @@ disk_io: io_uring
 disks:
 - name: "{{ disk_name }}"
 fs_type: btrfs
-btrfs_profile: single
+btrfs_data_profile: single
+btrfs_meta_profile: dup
 arch: generic
 datacenter: qemu
