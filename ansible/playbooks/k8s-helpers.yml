@@ -27,16 +27,3 @@
         - kube-reset.sh
       when: "inventory_hostname != 'k8s-1'"
 
-    - name: cilium helper folder
-      file:
-        path: "~/k8s/cilium"
-        state: directory
-      when: "inventory_hostname == 'k8s-1'"
-
-    - name: cililum helper
-      template:
-        src: "helpers/{{ item }}"
-        dest: "~/k8s/cilium/{{ item }}"
-      with_items:
-        - cilium-helm.sh
-      when: "inventory_hostname == 'k8s-1'"
