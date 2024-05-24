@@ -99,5 +99,7 @@ disks:
 fs_type: btrfs
 btrfs_data_profile: single
 btrfs_meta_profile: dup
+btrfs_features: fst,bgt
 arch: generic
 datacenter: qemu
+#registry_credentials: '{}'

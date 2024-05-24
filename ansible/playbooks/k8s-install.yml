@@ -68,6 +68,16 @@
         regexp: "/sys/fs/bpf"
         line: none  /sys/fs/bpf  bpf  rshared  0 0
 
+    - name: ensure iproute2 dir exists
+      file:
+        path: /etc/iproute2
+        state: directory
+
+    - name: enruse iproute2 rt_tables exists
+      file:
+        path: /etc/iproute2/rt_tables
+        state: touch
+
     - name: vswitch routing table
       lineinfile:
         path: /etc/iproute2/rt_tables
@@ -122,6 +132,11 @@
         src: containerd.logrotate
         dest: '/etc/logrotate.d/containerd'
 
+    - name: ensure containerd config dir exists
+      file:
+        path: /etc/containerd
+        state: directory
+
     - name: containerd config
       template:
         src: containerd.toml
@@ -132,3 +147,10 @@
         name: containerd
         enabled: yes
         state: started
+
+    - name: kubelet private registry
+      copy:
+        dest: /var/lib/kubelet/config.json
+        content: |
+          {{ registry_credentials }}
+      when: registry_credentials is defined

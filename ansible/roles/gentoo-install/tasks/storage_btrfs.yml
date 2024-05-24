@@ -17,7 +17,7 @@
     label: '{{ item.item.name }}'
 
 - name: Create BTRFS filesystem
-  shell: 'mkfs.btrfs -O fst,bgt -L gentoo -d {{ btrfs_data_profile }} -m {{ btrfs_meta_profile }} {{ disks | map("partition_dev", "2") | join(" ") }}'
+  shell: 'mkfs.btrfs -O {{ btrfs_features }} -L gentoo -d {{ btrfs_data_profile }} -m {{ btrfs_meta_profile }} {{ disks | map("partition_dev", "2") | join(" ") }}'
   when: fs_avail is not defined
 
 - name: Reload filesystem facts

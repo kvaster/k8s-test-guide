@@ -60,6 +60,12 @@
     src: ntp.conf
     dest: '{{ root }}/etc/ntp.conf'
 
+- name: Ensure sudoers.d exists
+  file:
+    path: '{{ root }}/etc/sudoers.d'
+    mode: 0750
+    state: directory
+
 - name: Grant sudo to wheel
   copy:
     content: |
@@ -78,6 +84,15 @@
     label: '{{ item.name }}'
   changed_when: false
 
+- name: Ensure .ssh exists for base user
+  file:
+    path: '{{ root }}/home/{{ item.name }}/.ssh'
+    mode: 0700
+    state: directory
+  loop: '{{ users }}'
+  loop_control:
+    label: '{{ item.name }}'
+
 - name: Configure ssh keys for base users
   copy:
     dest: '{{ root }}/home/{{ item.name }}/.ssh/authorized_keys'
@@ -92,7 +107,7 @@
     label: '{{ item.name }}'
 
 - name: Fix authorized_keys ownership
-  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; chown {{ item.name }}:{{ item.name }} /home/{{ item.name }}/.ssh/authorized_keys"'
+  command: 'chroot {{ root }} /bin/bash -c "source /etc/profile; chown -R {{ item.name }}:{{ item.name }} /home/{{ item.name }}/.ssh"'
   loop: '{{ users }}'
   loop_control:
     label: '{{ item.name }}'

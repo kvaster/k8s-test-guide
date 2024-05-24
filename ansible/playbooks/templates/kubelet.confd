@@ -1,6 +1,8 @@
 ###
 # Kubernetes Kubelet (worker) config
 
+rc_use="containerd"
+
 KUBELET_KUBECONFIG_ARGS="--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
 KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
 
@@ -21,4 +23,3 @@ start_pre() {
     sleep 1
   done
 }
-
