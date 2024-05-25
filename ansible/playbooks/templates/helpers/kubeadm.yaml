@@ -12,7 +12,7 @@ localAPIEndpoint:
   advertiseAddress: "{{ subnet_lan }}.{{ ip_short }}"
   bindPort: 6443
 nodeRegistration:
-  criSocket: /run/containerd/containerd.sock
+  criSocket: unix:///run/containerd/containerd.sock
   name: k8s-1
   taints:
   - effect: NoSchedule
@@ -39,8 +39,7 @@ controllerManager:
 etcd:
   local:
     dataDir: /var/lib/etcd
-imageRepository: k8s.gcr.io
-kubernetesVersion: v1.23.5
+kubernetesVersion: v1.29.3
 networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16
