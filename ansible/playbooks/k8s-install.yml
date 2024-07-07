@@ -73,7 +73,7 @@
         path: /etc/iproute2
         state: directory
 
-    - name: enruse iproute2 rt_tables exists
+    - name: ensure iproute2 rt_tables exists
       file:
         path: /etc/iproute2/rt_tables
         state: touch

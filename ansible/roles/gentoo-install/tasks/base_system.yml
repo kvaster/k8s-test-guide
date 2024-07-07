@@ -27,4 +27,4 @@
 - name: Remove tarball
   file:
     state: absent
-    path: '{{ root }}/stage4.tar.xz'
+    path: '{{ root }}/stage4.tar.zst'
