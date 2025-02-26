@@ -44,7 +44,12 @@ networking:
   dnsDomain: cluster.local
   podSubnet: 10.244.0.0/16
   serviceSubnet: 10.225.100.0/24
-scheduler: {}
+proxy:
+  disabled: true
+scheduler:
+  extraArgs:
+  - name: authentication-tolerate-lookup-failure
+    value: false
 ---
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
