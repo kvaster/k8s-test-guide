@@ -123,3 +123,10 @@
   shell: 'chroot {{ root }} /bin/bash -c "mdadm --detail --scan > /etc/mdadm.conf"'
   when: fs_type | regex_search ('^md_')
   changed_when: false
+
+- name: Set limits
+  copy:
+    content: |
+      root soft memlock unlimited
+      root hard memlock unlimited
+    dest: '{{ root }}/etc/security/limits.conf'
