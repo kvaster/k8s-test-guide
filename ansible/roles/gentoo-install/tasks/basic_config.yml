@@ -55,10 +55,10 @@
     label: '{{ item.1 }} -> {{ item.0.level }}'
   changed_when: false
 
-- name: Ntp config
+- name: Chrony config
   template:
-    src: ntp.conf
-    dest: '{{ root }}/etc/ntp.conf'
+    src: chrony.conf
+    dest: '{{ root }}/etc/chrony/chrony.conf'
 
 - name: Ensure sudoers.d exists
   file:

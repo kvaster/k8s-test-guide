@@ -16,5 +16,4 @@ default_services:
     services:
       - sshd
       - acpid
-      - ntpd
-      - ntp-client
+      - chronyd
