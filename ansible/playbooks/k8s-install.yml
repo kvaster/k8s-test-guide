@@ -143,6 +143,17 @@
         src: containerd.toml
         dest: '/etc/containerd/config.toml'
 
+    - name: containerd limits
+      copy:
+        content: |
+          # This is the delay to be used in the start_post function to wait for
+          # the socket to be active.
+          #containerd_socket_delay=5
+
+          # We need unlimited memlock for postgresql io_uring
+          rc_ulimit="-l unlimited"
+        dest: '/etc/conf.d/containerd'
+
     - name: autostart containred
       service:
         name: containerd
