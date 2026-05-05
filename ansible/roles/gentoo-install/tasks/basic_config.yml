@@ -117,6 +117,7 @@
   copy:
     content: |
       UUID="{{ fs_uuid }}" / {{ 'btrfs' if fs_type == 'btrfs' else 'ext4' }} noatime,nodiratime,rshared{{ ',space_cache=v2,discard=async,compress=' + btrfs_compression + ',subvol=root 0 0' if fs_type == 'btrfs' else ' 0 1' }}
+      fusectl /sys/fs/fuse/connections fusectl defaults 0 0
     dest: '{{ root }}/etc/fstab'
 
 - name: Create mdadm.conf
